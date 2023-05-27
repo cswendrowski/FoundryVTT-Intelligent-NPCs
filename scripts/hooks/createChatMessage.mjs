@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 const LOW_MESSAGE_WARNING = 20;
 let LOW = false;
 let OUT = false;
@@ -12,7 +12,7 @@ async function callApi(url, body) {
     }
 
     const apiKey = game.settings.get("intelligent-npcs", "apiKey");
-    const apiUrl = (DEBUG ? "http://localhost:7245/api/" : "") + url +
+    const apiUrl = (DEBUG ? "http://localhost:7245/api/" : "https://intelligentnpcs.azurewebsites.net") + url +
         '?code=I_ZasRU0hlvW5Q8y7zzYl4ZLnc3S8F9roA6H0I-idQuuAzFuUd5Srw==&clientId=module';
     const response = await fetch(apiUrl, {
         method: "POST",
