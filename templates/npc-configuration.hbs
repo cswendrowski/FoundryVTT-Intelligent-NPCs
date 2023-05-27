@@ -1,0 +1,48 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <div class="form-group">
+        <h2>{{actor.name}}</h2>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Public Summary</label>
+        <p class="notes">This summary will be read by other AI NPC's, so don't include any info that others shouldn't know</p>
+        <textarea class="form-control" rows=2 name="summary" placeholder="Description">{{config.summary}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Background</label>
+        <textarea class="form-control" rows="5" name="background" placeholder="Background">{{config.background}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Personality</label>
+        <textarea class="form-control" rows="5" name="personality" placeholder="Personality">{{config.personality}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Goals</label>
+        <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Appearance</label>
+        <textarea class="form-control" rows="3" name="appearance" placeholder="Appearance">{{config.appearance}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Example Sentence</label>
+        <textarea class="form-control" rows="1" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Memory</label>
+        <p class="notes">Warning: It's generally best to let the NPC manage it's own memory</p>
+        <textarea class="form-control" rows="5" name="memory" placeholder="Memory">{{config.memory}}</textarea>
+    </div>
+
+    <div class="form-group-stacked">
+        <label>Message History</label>
+        <button class="clear-history"><i class="fas fa-trash"></i> Clear History</button>
+        <textarea class="form-control" rows="10" readonly placeholder="Message History">{{messageHistory}}</textarea>
+    </div>
+</form>
