@@ -7,13 +7,17 @@
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 10,
-    "verified": 10,
+    "verified": 11,
     "maximum": 11
   },
   "authors": [
     {
       "name": "Cody Swendrowski",
       "discord": "cswendrowski#9701"
+    },
+    {
+      "name": "Roman Trevisanut",
+      "discord": "Cobalt#7779"
     }
   ],
   "relationships": {
@@ -34,6 +38,7 @@
       "path": "languages/en.json"
     }
   ],
+  "private": false,
   "url": "#{URL}#",
   "manifest": "#{MANIFEST}#",
   "download": "#{DOWNLOAD}#",
