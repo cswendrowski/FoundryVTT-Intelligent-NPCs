@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 const LOW_MESSAGE_WARNING = 20;
 let LOW = false;
 let OUT = false;
@@ -24,11 +24,38 @@ async function callApi(url, body) {
         body: JSON.stringify(body)
     });
 
+    // If this is a 401, the user needs to set their API key
+    if ( response.status === 401 ) {
+        ui.notifications.error("You need to set your Intelligent NPCs API key in the module settings.", {permanent: true});
+        OUT = true;
+        throw new Error("No API key");
+    }
+
+    // If this is a 403, the API key is valid but not active
+    else if ( response.status === 403 ) {
+        ui.notifications.error("Your Intelligent NPCs API key is not active. Please consider supporting the module on Patreon at https://www.patreon.com/ironmoose.", {permanent: true});
+        OUT = true;
+        throw new Error("API key not active");
+    }
+
+    // If this is a 404, the API key is not valid
+    else if ( response.status === 404 ) {
+        ui.notifications.error("Your Intelligent NPCs API key is invalid. Please double check your entry.", {permanent: true});
+        OUT = true;
+        throw new Error("Invalid API key");
+    }
+
     // If this is a 429, we've run out of messages
-    if ( response.status === 429 ) {
+    else if ( response.status === 429 ) {
         ui.notifications.error("You have run out of monthly messages for Intelligent NPCs. Please consider supporting the module on Patreon at a higher tier for additional requests.", {permanent: true});
         OUT = true;
         throw new Error("Out of messages");
+    }
+
+    // If this is a 503, the API is overloaded
+    else if ( response.status === 503 ) {
+        ui.notifications.error("The Intelligent NPCs API is overloaded. Please try again in a short bit.");
+        throw new Error("API overloaded");
     }
 
     // Read headers
@@ -51,11 +78,11 @@ async function chatCompletion(npc, message) {
     const config = npc.flags["intelligent-npcs"];
     // If the speaker has a summary, load it
     const speakerToken = canvas.scene.tokens.get(message.speaker.token);
-    const speakerSummary = speakerToken.actor?.getFlag("intelligent-npcs", "summary") ?? "";
+    const speakerSummary = speakerToken?.actor?.getFlag("intelligent-npcs", "summary") ?? "";
     const response = await callApi("ChatCompletion", {
         "name": npc.name,
         "message": message.content,
-        "speaker": message.speaker.alias,
+        "speaker": message.user.isGM ? "GM" : message.speaker.alias,
         "tokenNames": allTokenNames,
         "speakerSummary": speakerSummary,
         "sceneContext": sceneContext,
@@ -140,7 +167,7 @@ export async function createChatMessage(message, options, userId) {
 
     // If the target is not an AI, return
     const aiNpcs = canvas.scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.summary).map(t => t.actor._id);
-    const speakerIsTarget = targetedNpc.name === message.speaker.alias;
+    const speakerIsTarget = targetedNpc._id === message.speaker.actor;
     if (!aiNpcs.includes(targetedNpc._id) || speakerIsTarget) return;
 
     // get the message history from the npc flags
@@ -156,7 +183,11 @@ export async function createChatMessage(message, options, userId) {
     // Add this message to the message history as a user message
     messageHistory.push({
         "role": "user",
-        "content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }}`
+        //"content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }`
+        "content": `[RESPONSE]: Speaker: ${message.speaker.alias} Message:<p>${message.content}</p>
+        [MOOD]: neutral
+        [END_CONVERSATION]: false
+        [TARGET]: ${targetedNpc.name}`
     });
 
     try {
@@ -176,6 +207,59 @@ export async function createChatMessage(message, options, userId) {
             });
         }
     }
+}
+
+/* -------------------------------------------- */
+
+function parseAsJson(messageContent) {
+    const parsedMessageContent = JSON.parse(messageContent);
+    let content = parsedMessageContent.response;
+
+    // Replace even numbers of * with <i> tags
+    let seen = 0;
+    content = content.replace(/\*/g, (match, offset, string) => {
+        seen++;
+        return (seen % 2) ? "<i>" : "</i>";
+    });
+
+    return {
+        content: content,
+        mood: parsedMessageContent.mood,
+        target: parsedMessageContent.target,
+        endConversation: parsedMessageContent.endConversation
+    }
+}
+
+/* -------------------------------------------- */
+
+function parseStructuredText(text) {
+    const responseRegex = /\[RESPONSE\]: ([\s\S]+?)(?=\[|$)/i;
+    const moodRegex = /\[MOOD\]: ([\s\S]+?)(?=\[|$)/i;
+    const endConversationRegex = /\[END_CONVERSATION\]: ([\s\S]+?)(?=\[|$)/i;
+    const targetRegex = /\[TARGET\]: ([\s\S]+?)(?=\[|$)/i;
+
+    const responseMatch = text.match(responseRegex);
+    const moodMatch = text.match(moodRegex);
+    const endConversationMatch = text.match(endConversationRegex);
+    const targetMatch = text.match(targetRegex);
+
+    let response = responseMatch ? responseMatch[1].trim() : '';
+
+    // If we have an open <i> without a closing </i> before a " or a new line, close it
+    response = response.replace(/<i>([^<]*?["\n])/g, "<i>$1</i>");
+
+    let mood = moodMatch ? moodMatch[1].trim() : '';
+    // Clean any html out of mood
+    mood = mood.replace(/(<([^>]+)>)/gi, "");
+    const endConversation = endConversationMatch ? (endConversationMatch[1].trim().toLowerCase() === 'true') : false;
+    const target = targetMatch ? targetMatch[1].trim() : '';
+
+    return {
+        response,
+        mood,
+        endConversation,
+        target,
+    };
 }
 
 
@@ -201,17 +285,11 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     let target = null;
     let endConversation = false;
     try {
-        const parsedMessageContent = JSON.parse(messageContent);
+        //const parsedMessageContent = parseAsJson(messageContent);
+        const parsedMessageContent = parseStructuredText(messageContent);
         //console.dir(parsedMessageContent);
         content = parsedMessageContent.response;
         mood = parsedMessageContent.mood;
-
-        // Replace even numbers of * with <i> tags
-        let seen = 0;
-        content = content.replace(/\*/g, (match, offset, string) => {
-            seen++;
-            return (seen % 2) ? "<i>" : "</i>";
-        });
 
         if (parsedMessageContent.target) {
             target = canvas.scene.tokens.find(t => t.name === parsedMessageContent.target);
@@ -230,6 +308,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     } else {
         backAndForthLength = 0;
     }
+    const maxBackAndForthLength = game.settings.get("intelligent-npcs", "maxBackAndForthLength");
 
     thinkingMessage.delete();
 
@@ -244,7 +323,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
             "intelligent-npcs": {
                 target: target?._id,
                 targetName: target?.name,
-                endConversation: backAndForthLength > 15 ? true : endConversation,
+                endConversation: backAndForthLength > maxBackAndForthLength ? true : endConversation,
                 backAndForthLength: backAndForthLength,
                 mood: mood
             }
