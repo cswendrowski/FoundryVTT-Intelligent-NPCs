@@ -5,8 +5,15 @@
 
     <div class="form-group-stacked">
         <label>Public Summary</label>
-        <p class="notes">This summary will be read by other AI NPC's, so don't include any info that others shouldn't know</p>
+        <p class="notes">This summary will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know</p>
         <textarea class="form-control" rows=2 name="summary" placeholder="Description">{{config.summary}}</textarea>
+    </div>
+
+    <hr>
+
+    <div class="form-group-stacked">
+        <label>AI Enabled</label>
+        <input type="checkbox" name="enabled" {{checked config.enabled}}>
     </div>
 
     <div class="form-group-stacked">
@@ -31,6 +38,7 @@
 
     <div class="form-group-stacked">
         <label>Example Sentence</label>
+        <p class="notes">You should wrap emoting text with &lt;i&gt; tags, such as &lt;i&gt;Waves&lt;/i&gt;</p>
         <textarea class="form-control" rows="1" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
     </div>
 

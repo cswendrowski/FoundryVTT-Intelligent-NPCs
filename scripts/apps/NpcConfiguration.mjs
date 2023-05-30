@@ -128,6 +128,7 @@ export default class NpcConfiguration extends FormApplication {
     async _onExport() {
         // Export the actor flag data as JSON
         const config = this.actor.flags["intelligent-npcs"];
+        delete config.inventory;
         // delete config.messageHistory;
         const content = JSON.stringify(config, null, 2);
         const filename = `${this.actor.name}-intelligent-npc-config.json`;

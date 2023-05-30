@@ -82,7 +82,7 @@ async function chatCompletion(npc, message) {
     const response = await callApi("ChatCompletion", {
         "name": npc.name,
         "message": message.content,
-        "speaker": message.user.isGM ? "GM" : message.speaker.alias,
+        "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
         "tokenNames": allTokenNames,
         "speakerSummary": speakerSummary,
         "sceneContext": sceneContext,
@@ -166,7 +166,7 @@ export async function createChatMessage(message, options, userId) {
     const targetedNpc = targetedToken?.actor;
 
     // If the target is not an AI, return
-    const aiNpcs = canvas.scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.summary).map(t => t.actor._id);
+    const aiNpcs = canvas.scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.enabled === true).map(t => t.actor._id);
     const speakerIsTarget = targetedNpc._id === message.speaker.actor;
     if (!aiNpcs.includes(targetedNpc._id) || speakerIsTarget) return;
 
@@ -184,7 +184,7 @@ export async function createChatMessage(message, options, userId) {
     messageHistory.push({
         "role": "user",
         //"content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }`
-        "content": `[RESPONSE]: Speaker: ${message.speaker.alias} Message:<p>${message.content}</p>
+        "content": `[RESPONSE]: Speaker: ${message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown")} Message:<p>${message.content}</p>
         [MOOD]: neutral
         [END_CONVERSATION]: false
         [TARGET]: ${targetedNpc.name}`
