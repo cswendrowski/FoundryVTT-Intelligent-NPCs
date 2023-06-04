@@ -1,0 +1,33 @@
+<section>
+    <div class="inpc-info flexrow">
+        <img src="{{config.img}}" title="{{journal.name}}" height="248" width="248" />
+        <div class="flexcol">
+            <h1>{{journal.name}}</h1>
+
+            <h2>Summary</h2>
+            <p>{{config.summary}}</p>
+
+            <h2>Appearance</h2>
+            <p>{{config.appearance}}</p>
+        </div>
+    </div>
+
+    {{#if user.isGM}}
+        <hr>
+
+        <h2>Background</h2>
+        <p>{{config.background}}</p>
+
+        <h2>Personality</h2>
+        <p>{{config.personality}}</p>
+
+        <h2>Goals</h2>
+        <p>{{config.goals}}</p>
+
+        <h2>Example Sentence</h2>
+        <p>{{{config.exampleSentence}}}</p>
+
+        <h2>Initial Memory</h2>
+        <p>{{config.memory}}</p>
+    {{/if}}
+</section>

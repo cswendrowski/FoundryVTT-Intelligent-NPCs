@@ -1,3 +1,5 @@
+import NpcPageSheet from "../apps/NpcPageSheet.mjs";
+
 export async function init() {
     game.settings.register("intelligent-npcs", "apiKey", {
         name: "Intelligent NPCs API Key",
@@ -14,5 +16,12 @@ export async function init() {
         config: true,
         type: Number,
         default: 15
+    });
+
+    DocumentSheetConfig.registerSheet(JournalEntryPage, "intelligent-npcs", NpcPageSheet, {
+        types: ["text"],
+        label() {
+            return "Intelligent NPC Configuration";
+        }
     });
 }

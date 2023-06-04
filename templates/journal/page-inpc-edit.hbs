@@ -1,0 +1,52 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <div class="form-group inpc-header">
+        <img src="{{config.img}}" data-edit="img" title="{{journal.name}}" height="124" width="124"/>
+        <h2><input type="text" name="name" value="{{journal.name}}"></h2>
+    </div>
+
+    <fieldset>
+        <legend>Public</legend>
+        <p class="notes">These fields will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know</p>
+
+        <div class="form-group-stacked">
+            <label>Summary</label>
+            <textarea class="form-control" rows=2 name="summary" placeholder="Description">{{config.summary}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Appearance</label>
+            <textarea class="form-control" rows="3" name="appearance" placeholder="Appearance">{{config.appearance}}</textarea>
+        </div>
+    </fieldset>
+
+
+    <fieldset>
+        <legend>Personality</legend>
+
+        <div class="form-group-stacked">
+            <label>Background</label>
+            <textarea class="form-control" rows="5" name="background" placeholder="Background">{{config.background}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Personality</label>
+            <textarea class="form-control" rows="5" name="personality" placeholder="Personality">{{config.personality}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Goals</label>
+            <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Example Sentence</label>
+            <p class="notes">You should wrap emoting text with &lt;i&gt; tags, such as &lt;i&gt;Waves&lt;/i&gt;</p>
+            <textarea class="form-control" rows="1" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Initial Memory</label>
+            <textarea class="form-control" rows="5" name="memory" placeholder="Memory">{{config.memory}}</textarea>
+        </div>
+    </fieldset>
+</form>

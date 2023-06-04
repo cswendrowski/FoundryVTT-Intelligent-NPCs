@@ -72,25 +72,48 @@ async function callApi(url, body) {
 
 /* -------------------------------------------- */
 
+async function getConfig(npc) {
+    if ( !npc ) return {};
+    const actorConfig = npc.flags["intelligent-npcs"];
+    const pageId = npc.getFlag("intelligent-npcs", "journalPage");
+    const journal = game.journal.find(journalEntry => journalEntry.pages.get(pageId));
+    if ( !journal ) return actorConfig;
+    const page = journal.pages.get(pageId);
+    const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
+    const config = {
+        ...selectedPageConfig
+    };
+    if ( actorConfig.summary ) config.summary = actorConfig.summary;
+    if ( actorConfig.appearance ) config.appearance = actorConfig.appearance;
+    if ( actorConfig.messageHistory ) config.messageHistory = actorConfig.messageHistory;
+    if ( actorConfig.memory ) config.memory = actorConfig.memory;
+    delete config.name;
+    return config;
+}
+
+/* -------------------------------------------- */
+
 async function chatCompletion(npc, message) {
     const allTokenNames = canvas.scene.tokens.map(t => t.name);
     const sceneContext = canvas.scene.getFlag("intelligent-npcs", "sceneInfo") || "";
-    const config = npc.flags["intelligent-npcs"];
+    const config = await getConfig(npc);
     // If the speaker has a summary, load it
     const speakerToken = canvas.scene.tokens.get(message.speaker.token);
-    const speakerSummary = speakerToken?.actor?.getFlag("intelligent-npcs", "summary") ?? "";
-    const response = await callApi("ChatCompletion", {
+    const speakerConfig = await getConfig(speakerToken?.actor);
+    const speakerSummary = speakerConfig.summary ?? "";
+    const speakerAppearance = speakerConfig.appearance ?? "";
+    const body = {
         "name": npc.name,
         "message": message.content,
-        "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
         "tokenNames": allTokenNames,
+        "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
         "speakerSummary": speakerSummary,
+        "speakerAppearance": speakerAppearance,
         "sceneContext": sceneContext,
         ...config
-    });
-
+    };
+    const response = await callApi("ChatCompletion", body);
     return response;
-
 }
 
 /* -------------------------------------------- */

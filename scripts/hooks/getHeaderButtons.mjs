@@ -1,4 +1,4 @@
-import NpcConfiguration from "../apps/NpcConfiguration.mjs";
+import ActoriNpcConfiguration from "../apps/ActoriNpcConfiguration.mjs";
 
 export function getActorHeaderButtons(sheet, buttons) {
 
@@ -7,7 +7,7 @@ export function getActorHeaderButtons(sheet, buttons) {
         class: "configure-intelligent-npc",
         icon: "fas fa-thought-bubble",
         onclick: (event) => {
-            let configurationApp = new NpcConfiguration(sheet.actor);
+            let configurationApp = new ActoriNpcConfiguration(sheet.actor);
             configurationApp.render(true);
         },
         label: "Intelligent NPC"

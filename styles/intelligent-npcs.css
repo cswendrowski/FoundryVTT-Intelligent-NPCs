@@ -1,0 +1,35 @@
+.chat-message .message-header .message-sender {
+    flex: 4;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.chat-message > .message-content > * {
+    user-select: auto;
+}
+
+.chat-message > .message-content > p > * {
+    user-select: auto;
+}
+
+.sheet.journal-entry-page .form-group.inpc-header {
+    margin-bottom: 0.5rem;
+}
+
+.inpc-header > img {
+    flex: 0;
+}
+
+.inpc-header > h2 {
+    align-self: flex-start;
+    margin-left: 1rem;
+}
+
+.inpc-info > img {
+    flex: 0;
+    margin-right: 1rem;
+}
+
+.inpc-info > div {
+    align-self: flex-start;
+}

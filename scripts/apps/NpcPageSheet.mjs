@@ -1,59 +1,55 @@
-export default class NpcConfiguration extends FormApplication {
-
-    constructor(actor, options) {
-        super(options);
-
-        this.actor = actor;
-    }
-
-    /* -------------------------------------------- */
-
-    /** @override */
+export default class NpcPageSheet extends JournalPageSheet {
+    /** @inheritdoc */
     static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            template: `modules/intelligent-npcs/templates/npc-configuration.hbs`,
-            title: "Intelligent NPC Configuration",
-            popOut: true,
-            width: 1000,
-            height: 960,
-            closeOnSubmit: false,
-            submitOnClose: true
-        });
+        const options = super.defaultOptions;
+        options.classes.push("form");
+        return options;
     }
 
     /* -------------------------------------------- */
 
-    /** @override */
+    /** @inheritdoc */
+    get template() {
+        return this.isEditable ? `/modules/intelligent-npcs/templates/journal/page-inpc-edit.hbs` :
+            `/modules/intelligent-npcs/templates/journal/page-inpc-view.hbs`;
+    }
+
+    /* -------------------------------------------- */
+
+    /** @inheritDoc */
     async getData(options) {
         const context = super.getData(options);
-        const config = this.actor.flags["intelligent-npcs"] ?? {};
 
-        if ( !config ) {
+        /** @type {FishingSpotData} */
+        let config = context.document.flags["intelligent-npcs"] ?? {};
+        if ( foundry.utils.isEmpty(config) ) {
+            config["enabled"] = true;
             config["summary"] = "You are a generic NPC named Bob.";
             config["background"] = "You live in a quiet town where nothing much goes on. You are married to a woman named Jane. You have a son named Billy and a daughter named Sally.";
             config["personality"] = "You are quiet and reserved, talking in short sentences.";
             config["goals"] = "Live a quiet life.";
             config["appearance"] = "Farmer attire";
-            config["exampleSentence"] = "Evening.";
+            config["exampleSentence"] = "<i>Tips hat</i> \"Evening.\"";
             config["memory"] = "Today my wife and I went to the market. We bought some bread and milk.";
-            config["inventory"] = "A small knife, a pouch of 100 silver coins, a loaf of bread, a jug of milk.";
         }
 
         return foundry.utils.mergeObject(context, {
-            actor: this.actor,
+            journal: this.object,
             config: config,
-            messageHistory: JSON.stringify(this.actor.getFlag("intelligent-npcs", "messageHistory"), null, 2)
+            user: game.user,
+            messageHistory: JSON.stringify(context.document.getFlag("intelligent-npcs", "messageHistory"), null, 2)
         });
     }
 
     /* -------------------------------------------- */
 
-    /** @override */
     async _updateObject(event, formData) {
-        // For each entry in the form data, update the corresponding actor data
-        for (let [key, value] of Object.entries(formData)) {
-            await this.actor.setFlag("intelligent-npcs", key, value);
-        }
+        const updateData = foundry.utils.mergeObject(formData, {
+            "flags": {
+                ["intelligent-npcs"]: formData
+            }
+        });
+        return super._updateObject(event, updateData);
     }
 
     /* -------------------------------------------- */
@@ -62,27 +58,22 @@ export default class NpcConfiguration extends FormApplication {
     _getHeaderButtons() {
         const buttons = super._getHeaderButtons();
 
+        if ( !this.isEditable ) return buttons;
+
         buttons.unshift({
-            label: "Import",
-            class: "import",
-            icon: "fas fa-file-import",
-            onclick: () => this._onImport(),
-        },
-        {
-            label: "Export",
-            class: "export",
-            icon: "fas fa-file-export",
-            onclick: () => this._onExport(),
-        });
+                label: "Import",
+                class: "import",
+                icon: "fas fa-file-import",
+                onclick: () => this._onImport(),
+            },
+            {
+                label: "Export",
+                class: "export",
+                icon: "fas fa-file-export",
+                onclick: () => this._onExport(),
+            });
 
         return buttons;
-    }
-
-    /* -------------------------------------------- */
-
-    /** @override */
-    activateListeners(html) {
-        html.find(".clear-history").click(this._onClearHistory.bind(this));
     }
 
     /* -------------------------------------------- */
@@ -119,7 +110,7 @@ export default class NpcConfiguration extends FormApplication {
         if ( !config ) return;
 
         // Update the actor
-        this.actor.flags["intelligent-npcs"] = config;
+        this.object.flags["intelligent-npcs"] = config;
         this.render();
     }
 
@@ -127,26 +118,10 @@ export default class NpcConfiguration extends FormApplication {
 
     async _onExport() {
         // Export the actor flag data as JSON
-        const config = this.actor.flags["intelligent-npcs"];
-        delete config.inventory;
+        const config = this.object.flags["intelligent-npcs"];
         // delete config.messageHistory;
         const content = JSON.stringify(config, null, 2);
-        const filename = `${this.actor.name}-intelligent-npc-config.json`;
+        const filename = `${this.object.name}-intelligent-npc-journal-page-config.json`;
         saveDataToFile(content, "application/json", filename);
-    }
-
-    /* -------------------------------------------- */
-
-    async _onClearHistory() {
-
-        const allow = await Dialog.confirm({
-            title: "Clear Message History",
-            content: "Are you sure you want to clear the message history? This cannot be undone.",
-        });
-        if ( !allow ) return;
-
-        // Clear the message history
-        await this.actor.setFlag("intelligent-npcs", "messageHistory", []);
-        this.render();
     }
 }

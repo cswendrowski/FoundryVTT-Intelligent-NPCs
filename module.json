@@ -30,6 +30,7 @@
   "scripts": [
   ],
   "styles": [
+    "styles/intelligent-npcs.css"
   ],
   "languages": [
     {
@@ -38,6 +39,12 @@
       "path": "languages/en.json"
     }
   ],
+  "flags": {
+    "hotReload": {
+      "extensions": ["css", "hbs", "json"],
+      "paths": ["styles", "templates", "languages"]
+    }
+  },
   "private": false,
   "url": "#{URL}#",
   "manifest": "#{MANIFEST}#",

@@ -14,4 +14,5 @@ export async function renderChatMessage(message, html, data) {
     }
 
     sender.append(toAppend);
+    sender[0].dataset.tooltip = sender[0].innerHTML;
 }
