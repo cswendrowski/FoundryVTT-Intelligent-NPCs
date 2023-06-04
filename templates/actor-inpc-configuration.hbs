@@ -16,6 +16,7 @@
                 <p class="notes">Pick an available Intelligent NPC journal page to load up a character to use</p>
             {{else}}
                 <p class="notes">This NPC has been customized. Please reset to swap configured personality</p>
+                <button class="reset-inpc"><i class="fas fa-undo"></i> Reset</button>
             {{/if}}
             <select name="journalPage" {{#unless canSwap}}disabled="disabled"{{/unless}}>
                 {{selectOptions journalPages selected=config.journalPage}}

@@ -45,9 +45,10 @@ export default class ActoriNpcConfiguration extends FormApplication {
                 return obj;
             }, {"none": "None"});
 
-        const pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
+        let pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
         const journal = game.journal.find(journalEntry => journalEntry.pages.get(pageId));
         const page = journal?.pages.get(pageId);
+        if ( !page ) pageId = "none";
         const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
 
         const hasMessageHistory = config["messageHistory"] && config["messageHistory"].length > 0;
@@ -105,6 +106,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
     /** @override */
     activateListeners(html) {
         html.find(".clear-history").click(this._onClearHistory.bind(this));
+        html.find(".reset-inpc").click(this._onReset.bind(this));
         html.find("select[name='journalPage']").change(this._onJournalPageChange.bind(this));
         html.find("textarea[name='memory']").change(this._onMemoryChange.bind(this));
     }
@@ -206,6 +208,45 @@ export default class ActoriNpcConfiguration extends FormApplication {
 
         // Clear the message history
         await this.actor.setFlag("intelligent-npcs", "messageHistory", []);
+        this.render();
+    }
+
+    /* -------------------------------------------- */
+
+    async _onReset() {
+        const allow = await Dialog.confirm({
+            title: "Reset Intelligent NPC",
+            content: "Are you sure you want to reset this intelligent NPC? This will clear any customizations and interactions you have.",
+        });
+        if ( !allow ) return;
+
+        // Clear the customizations
+        await this.actor.setFlag("intelligent-npcs", "summary", "");
+        await this.actor.setFlag("intelligent-npcs", "appearance", "");
+        await this.actor.setFlag("intelligent-npcs", "messageHistory", []);
+        await this.actor.setFlag("intelligent-npcs", "memory", "");
+
+        const pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
+        const page = game.journal.find(journalEntry => journalEntry.pages.get(pageId)).pages.get(pageId);
+        const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
+
+        // Update the form data with the new page's config
+        this.actor.update({
+            name: selectedPageConfig["name"],
+            "prototypeToken.name": selectedPageConfig["name"],
+            img: selectedPageConfig["img"],
+        });
+        if ( canvas.scene ) {
+            const token = canvas.scene.tokens.find(t => t.actorId === this.actor.id);
+            if ( token ) {
+                token.update({
+                    name: selectedPageConfig["name"],
+                    img: selectedPageConfig["img"],
+                });
+            }
+        }
+        await this.actor.setFlag("intelligent-npcs", "name", selectedPageConfig["name"]);
+        await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);
         this.render();
     }
 }
