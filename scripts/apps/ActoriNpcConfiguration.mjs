@@ -38,7 +38,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
             .find(p => p.getFlag("intelligent-npcs", "enabled")));
         const inpcJournalPages = inpcJournals
             .reduce((obj, journal) => {
-                const pages = journal.pages.filter(p => p.getFlag("intelligent-npcs", "enabled"));
+                const pages = journal.pages.filter(p => !foundry.utils.isEmpty(p.flags["intelligent-npcs"]));
                 for (const page of pages) {
                     obj[page.id] = page.name;
                 }
