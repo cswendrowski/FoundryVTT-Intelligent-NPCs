@@ -54,7 +54,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         const hasMessageHistory = config["messageHistory"] && config["messageHistory"].length > 0;
         const hasDifferentMemory = config["memory"] && config["memory"].length > 0
             && config["memory"] !== selectedPageConfig["memory"];
-        const hasDifferentName = this.actor.name !== page.name;
+        const hasDifferentName = this.actor ? this.actor.name !== page.name : false;
 
         const canSwap = (pageId === "none") || !(hasMessageHistory || hasDifferentMemory || hasDifferentName);
 
