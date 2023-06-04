@@ -43,10 +43,11 @@ export default class ActoriNpcConfiguration extends FormApplication {
                     obj[page.id] = page.name;
                 }
                 return obj;
-            }, {});
+            }, {"none": "None"});
 
         const pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
-        const page = game.journal.find(journalEntry => journalEntry.pages.get(pageId)).pages.get(pageId);
+        const journal = game.journal.find(journalEntry => journalEntry.pages.get(pageId));
+        const page = journal?.pages.get(pageId);
         const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
 
         const hasMessageHistory = config["messageHistory"] && config["messageHistory"].length > 0;
