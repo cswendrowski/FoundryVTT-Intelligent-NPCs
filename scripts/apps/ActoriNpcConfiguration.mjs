@@ -55,7 +55,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
             && config["memory"] !== selectedPageConfig["memory"];
         const hasDifferentName = this.actor.name !== selectedPageConfig["name"];
 
-        const canSwap = !(hasMessageHistory || hasDifferentMemory || hasDifferentName);
+        const canSwap = (pageId === "none") || !(hasMessageHistory || hasDifferentMemory || hasDifferentName);
 
         return foundry.utils.mergeObject(context, {
             actor: this.actor,
