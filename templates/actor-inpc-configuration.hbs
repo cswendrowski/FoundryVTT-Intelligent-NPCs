@@ -19,7 +19,16 @@
                 <button class="reset-inpc"><i class="fas fa-undo"></i> Reset</button>
             {{/if}}
             <select name="journalPage" {{#unless canSwap}}disabled="disabled"{{/unless}}>
-                {{selectOptions journalPages selected=config.journalPage}}
+                {{#select config.journalPage}}
+                <option value="none">None</option>
+                {{#each journalPages.optgroups}}
+                    <optgroup label="{{label}}">
+                        {{#each options}}
+                            <option value="{{value}}">{{label}}</option>
+                        {{/each}}
+                    </optgroup>
+                {{/each}}
+                {{/select}}
             </select>
         </div>
     </fieldset>

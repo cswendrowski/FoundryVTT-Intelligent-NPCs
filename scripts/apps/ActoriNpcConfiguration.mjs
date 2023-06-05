@@ -40,10 +40,13 @@ export default class ActoriNpcConfiguration extends FormApplication {
             .reduce((obj, journal) => {
                 const pages = journal.pages.filter(p => !foundry.utils.isEmpty(p.flags["intelligent-npcs"]));
                 for (const page of pages) {
-                    obj[page.id] = page.name;
+                    if ( !obj.optgroups.find(og => og.label === journal.name) ) {
+                        obj.optgroups.push({label: journal.name, options: []});
+                    }
+                    obj.optgroups.find(og => og.label === journal.name).options.push({value: page.id, label: page.name});
                 }
                 return obj;
-            }, {"none": "None"});
+            }, { optgroups: []});
 
         let pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
         const journal = game.journal.find(journalEntry => journalEntry.pages.get(pageId));
@@ -120,20 +123,21 @@ export default class ActoriNpcConfiguration extends FormApplication {
 
         // Update the form data with the new page's config
         this.actor.update({
-            name: selectedPageConfig["name"],
-            "prototypeToken.name": selectedPageConfig["name"],
+            name: page.name,
+            "prototypeToken.name": page.name,
+            "prototypeToken.texture.src": selectedPageConfig["img"],
             img: selectedPageConfig["img"],
         });
         if ( canvas.scene ) {
             const token = canvas.scene.tokens.find(t => t.actorId === this.actor.id);
             if ( token ) {
                 token.update({
-                    name: selectedPageConfig["name"],
+                    name: page.name,
                     img: selectedPageConfig["img"],
                 });
             }
         }
-        await this.actor.setFlag("intelligent-npcs", "name", selectedPageConfig["name"]);
+        await this.actor.setFlag("intelligent-npcs", "name", page.name);
         await this.actor.setFlag("intelligent-npcs", "journalPage", pageId);
         await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);
         this.render(true);
@@ -232,20 +236,21 @@ export default class ActoriNpcConfiguration extends FormApplication {
 
         // Update the form data with the new page's config
         this.actor.update({
-            name: selectedPageConfig["name"],
-            "prototypeToken.name": selectedPageConfig["name"],
+            name: page.name,
+            "prototypeToken.name": page.name,
+            "prototypeToken.texture.src": selectedPageConfig["img"],
             img: selectedPageConfig["img"],
         });
         if ( canvas.scene ) {
             const token = canvas.scene.tokens.find(t => t.actorId === this.actor.id);
             if ( token ) {
                 token.update({
-                    name: selectedPageConfig["name"],
+                    name: page.name,
                     img: selectedPageConfig["img"],
                 });
             }
         }
-        await this.actor.setFlag("intelligent-npcs", "name", selectedPageConfig["name"]);
+        await this.actor.setFlag("intelligent-npcs", "name", page.name);
         await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);
         this.render();
     }
