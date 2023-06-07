@@ -33,3 +33,7 @@
 .inpc-info > div {
     align-self: flex-start;
 }
+
+.inpc-journal-page-link {
+    cursor: pointer;
+}

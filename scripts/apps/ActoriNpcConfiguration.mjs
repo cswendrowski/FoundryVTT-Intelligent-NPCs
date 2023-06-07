@@ -49,9 +49,13 @@ export default class ActoriNpcConfiguration extends FormApplication {
             }, { optgroups: []});
 
         let pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
+        let pageUUID = "";
         const journal = game.journal.find(journalEntry => journalEntry.pages.get(pageId));
         const page = journal?.pages.get(pageId);
         if ( !page ) pageId = "none";
+        else {
+            pageUUID = page.uuid;
+        }
         const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
 
         const hasMessageHistory = config["messageHistory"] && config["messageHistory"].length > 0;
@@ -66,6 +70,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
             config: config,
             journalPages: inpcJournalPages,
             canSwap: canSwap,
+            journalPageUUID: pageUUID,
             messageHistory: JSON.stringify(this.actor.getFlag("intelligent-npcs", "messageHistory"), null, 2)
         });
     }
@@ -112,6 +117,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         html.find(".reset-inpc").click(this._onReset.bind(this));
         html.find("select[name='journalPage']").change(this._onJournalPageChange.bind(this));
         html.find("textarea[name='memory']").change(this._onMemoryChange.bind(this));
+        html.find(".inpc-journal-page-link").click(this._onJournalPageLink.bind(this));
     }
 
     /* -------------------------------------------- */
@@ -120,6 +126,9 @@ export default class ActoriNpcConfiguration extends FormApplication {
         const pageId = event.target.value;
         const page = game.journal.find(journalEntry => journalEntry.pages.get(pageId)).pages.get(pageId);
         const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
+
+        // Update the page link uuid
+        this.element.find(".inpc-journal-page-link")[0].dataset.uuid = page.uuid;
 
         // Update the form data with the new page's config
         this.actor.update({
@@ -253,5 +262,13 @@ export default class ActoriNpcConfiguration extends FormApplication {
         await this.actor.setFlag("intelligent-npcs", "name", page.name);
         await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);
         this.render();
+    }
+
+    /* -------------------------------------------- */
+
+    async _onJournalPageLink(event) {
+        const uuid = event.currentTarget.dataset.uuid;
+        const page = await fromUuid(uuid);
+        page?._onClickDocumentLink(event);
     }
 }
