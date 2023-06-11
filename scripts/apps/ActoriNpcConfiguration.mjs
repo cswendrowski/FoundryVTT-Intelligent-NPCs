@@ -146,6 +146,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
                 });
             }
         }
+        await this.actor.setFlag("intelligent-npcs", "enabled", true);
         await this.actor.setFlag("intelligent-npcs", "name", page.name);
         await this.actor.setFlag("intelligent-npcs", "journalPage", pageId);
         await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);

@@ -2,11 +2,15 @@ const DEBUG = false;
 const LOW_MESSAGE_WARNING = 20;
 let LOW = false;
 let OUT = false;
+let NEEDS_KEY = false;
 
 /* -------------------------------------------- */
 
 async function callApi(url, body) {
 
+    if ( NEEDS_KEY ) {
+        throw new Error("Set a valid API Key");
+    }
     if ( OUT ) {
         throw new Error("Out of messages");
     }
@@ -27,21 +31,21 @@ async function callApi(url, body) {
     // If this is a 401, the user needs to set their API key
     if ( response.status === 401 ) {
         ui.notifications.error("You need to set your Intelligent NPCs API key in the module settings.", {permanent: true});
-        OUT = true;
+        NEEDS_KEY = true;
         throw new Error("No API key");
     }
 
     // If this is a 403, the API key is valid but not active
     else if ( response.status === 403 ) {
         ui.notifications.error("Your Intelligent NPCs API key is not active. Please consider supporting the module on Patreon at https://www.patreon.com/ironmoose.", {permanent: true});
-        OUT = true;
+        NEEDS_KEY = true;
         throw new Error("API key not active");
     }
 
     // If this is a 404, the API key is not valid
     else if ( response.status === 404 ) {
         ui.notifications.error("Your Intelligent NPCs API key is invalid. Please double check your entry.", {permanent: true});
-        OUT = true;
+        NEEDS_KEY = true;
         throw new Error("Invalid API key");
     }
 
@@ -93,15 +97,15 @@ async function getConfig(npc) {
 
 /* -------------------------------------------- */
 
-async function chatCompletion(npc, message) {
-    const allTokenNames = canvas.scene.tokens.map(t => t.name);
-    const sceneContext = canvas.scene.getFlag("intelligent-npcs", "sceneInfo") || "";
+async function chatCompletion(npc, message, scene) {
+    const allTokenNames = scene.tokens.map(t => t.name);
+    const sceneContext = scene.getFlag("intelligent-npcs", "sceneInfo") || "";
     const config = await getConfig(npc);
     // If the speaker has a summary, load it
-    const speakerToken = canvas.scene.tokens.get(message.speaker.token);
+    const speakerToken = scene.tokens.get(message.speaker.token);
     const speakerConfig = await getConfig(speakerToken?.actor);
-    const speakerSummary = speakerConfig.summary ?? "";
-    const speakerAppearance = speakerConfig.appearance ?? "";
+    const speakerSummary = speakerConfig?.summary ?? "";
+    const speakerAppearance = speakerConfig?.appearance ?? "";
     const body = {
         "name": npc.name,
         "message": message.content,
@@ -162,6 +166,8 @@ export async function createChatMessage(message, options, userId) {
     if ( !this.firstGM ) this.firstGM = game.users.find(u => u.isGM && u.active);
     if ( game.user !== this.firstGM ) return;
 
+    const scene = game.scenes.get(message.speaker.scene);
+
     //console.dir(message);
 
     if ( message.content.includes("Thinking...") ) return;
@@ -174,7 +180,7 @@ export async function createChatMessage(message, options, userId) {
     let targetedToken = null;
     if ( message.flags && message.flags["intelligent-npcs"] ) {
         if ( message.flags["intelligent-npcs"].target ) {
-            targetedToken = canvas.scene.tokens.get(message.flags["intelligent-npcs"].target);
+            targetedToken = scene.tokens.get(message.flags["intelligent-npcs"].target);
         }
         if ( message.flags["intelligent-npcs"].endConversation ) {
             return;
@@ -189,7 +195,7 @@ export async function createChatMessage(message, options, userId) {
     const targetedNpc = targetedToken?.actor;
 
     // If the target is not an AI, return
-    const aiNpcs = canvas.scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.enabled === true).map(t => t.actor._id);
+    const aiNpcs = scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.enabled === true).map(t => t.actor._id);
     const speakerIsTarget = targetedNpc._id === message.speaker.actor;
     if (!aiNpcs.includes(targetedNpc._id) || speakerIsTarget) return;
 
@@ -289,7 +295,8 @@ function parseStructuredText(text) {
 /* -------------------------------------------- */
 
 async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage) {
-    const messageContent = await chatCompletion(targetedNpc, message);
+    const scene = game.scenes.get(message.speaker.scene);
+    const messageContent = await chatCompletion(targetedNpc, message, scene);
 
     // Add this message to the message history as an assistant message
     messageHistory.push({
@@ -315,7 +322,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
         mood = parsedMessageContent.mood;
 
         if (parsedMessageContent.target) {
-            target = canvas.scene.tokens.find(t => t.name === parsedMessageContent.target);
+            target = scene.tokens.find(t => t.name === parsedMessageContent.target);
         }
         if (parsedMessageContent.endConversation) {
             endConversation = parsedMessageContent.endConversation;

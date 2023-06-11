@@ -6,7 +6,8 @@ export async function init() {
         hint: "You can get an API key by being a Patreon supporter at https://www.patreon.com/ironmoose.",
         scope: "world",
         config: true,
-        type: String
+        type: String,
+        reload: true,
     });
 
     game.settings.register("intelligent-npcs", "maxBackAndForthLength", {
