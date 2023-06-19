@@ -160,6 +160,39 @@ function manageMemory(npc, messageHistory) {
 
 /* -------------------------------------------- */
 
+export async function createAiResponse(targetedNpc, message, messageHistory) {
+    // Create a chat message to indicate that processing is happening
+    const thinkingMessage = await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
+        content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking...`,
+        type: CONST.CHAT_MESSAGE_TYPES.IC,
+    });
+    try {
+        await respondAsAI(targetedNpc, message, messageHistory, thinkingMessage);
+    } catch (err) {
+        console.error(err);
+        thinkingMessage.delete();
+
+        if (err.message !== "Out of messages") {
+            // Create a GM-only chat message to indicate that processing failed
+            // Attach flag data of the request to allow for retry
+            const flagData = {
+                "message": message,
+                "messageHistory": messageHistory,
+                "targetedNpc": targetedNpc
+            }
+            await ChatMessage.create({
+                content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details. <button class="inpc-retry-message"><i class="fa-solid fa-arrow-right-from-bracket"></i> Retry</button>`,
+                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                whisper: game.users.filter(u => u.isGM).map(u => u._id),
+                flags: {
+                    "intelligent-npcs": flagData
+                }
+            });
+        }
+    }
+}
+
 export async function createChatMessage(message, options, userId) {
 
     // If the user is not the first GM, return
@@ -202,37 +235,13 @@ export async function createChatMessage(message, options, userId) {
     // get the message history from the npc flags
     const messageHistory = targetedNpc.getFlag("intelligent-npcs", "messageHistory") || [];
 
-    // Create a chat message to indicate that processing is happening
-    const thinkingMessage = await ChatMessage.create({
-        speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
-        content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking...`,
-        type: CONST.CHAT_MESSAGE_TYPES.IC,
-    });
-
     // Add this message to the message history as a user message
     messageHistory.push({
         "role": "user",
         //"content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }`
         "content": `Speaker: ${message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown")} Message:<p>${message.content}</p>`
     });
-
-    try {
-        await respondAsAI(targetedNpc, message, messageHistory, thinkingMessage);
-    }
-    catch (err)
-    {
-        console.error(err);
-        thinkingMessage.delete();
-
-        if ( err.message !== "Out of messages" ) {
-            // Create a GM-only chat message to indicate that processing failed
-            await ChatMessage.create({
-                content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details.`,
-                type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                whisper: game.users.filter(u => u.isGM).map(u => u._id)
-            });
-        }
-    }
+    await createAiResponse(targetedNpc, message, messageHistory);
 }
 
 /* -------------------------------------------- */
@@ -293,7 +302,18 @@ function parseStructuredText(text) {
 
 async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage) {
     const scene = game.scenes.get(message.speaker.scene);
+
+    // Start a timer, if we take longer than 5 seconds, tell the user we are taking longer than expected
+    const timer = setTimeout(() => {
+        thinkingMessage.update({
+            content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking... (Taking longer than expected)`
+        });
+    }, 5000);
+
     const messageContent = await chatCompletion(targetedNpc, message, scene);
+
+    // Clear the timer
+    clearTimeout(timer);
 
     // Add this message to the message history as an assistant message
     messageHistory.push({
