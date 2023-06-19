@@ -213,10 +213,7 @@ export async function createChatMessage(message, options, userId) {
     messageHistory.push({
         "role": "user",
         //"content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }`
-        "content": `[RESPONSE]: Speaker: ${message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown")} Message:<p>${message.content}</p>
-        [MOOD]: neutral
-        [END_CONVERSATION]: false
-        [TARGET]: ${targetedNpc.name}`
+        "content": `Speaker: ${message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown")} Message:<p>${message.content}</p>`
     });
 
     try {
@@ -241,18 +238,18 @@ export async function createChatMessage(message, options, userId) {
 /* -------------------------------------------- */
 
 function parseAsJson(messageContent) {
+    //console.dir(messageContent);
     const parsedMessageContent = JSON.parse(messageContent);
-    let content = parsedMessageContent.response;
 
     // Replace even numbers of * with <i> tags
-    let seen = 0;
-    content = content.replace(/\*/g, (match, offset, string) => {
-        seen++;
-        return (seen % 2) ? "<i>" : "</i>";
-    });
+    // let seen = 0;
+    // content = content.replace(/\*/g, (match, offset, string) => {
+    //     seen++;
+    //     return (seen % 2) ? "<i>" : "</i>";
+    // });
 
     return {
-        content: content,
+        response: parsedMessageContent.content,
         mood: parsedMessageContent.mood,
         target: parsedMessageContent.target,
         endConversation: parsedMessageContent.endConversation
@@ -315,8 +312,8 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     let target = null;
     let endConversation = false;
     try {
-        //const parsedMessageContent = parseAsJson(messageContent);
-        const parsedMessageContent = parseStructuredText(messageContent);
+        const parsedMessageContent = parseAsJson(messageContent);
+        //const parsedMessageContent = parseStructuredText(messageContent);
         //console.dir(parsedMessageContent);
         content = parsedMessageContent.response;
         mood = parsedMessageContent.mood;
@@ -344,7 +341,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
 
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
-        content: content,
+        content: `<div>${content}</div>`,
         type: CONST.CHAT_MESSAGE_TYPES.IC,
         flags: {
             vino: {

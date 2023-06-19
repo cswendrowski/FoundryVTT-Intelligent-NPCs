@@ -25,9 +25,10 @@ export default class NpcPageSheet extends JournalPageSheet {
         if ( foundry.utils.isEmpty(config) ) {
             config["enabled"] = true;
             config["summary"] = "You are a generic NPC named Bob.";
-            config["background"] = "You live in a quiet town where nothing much goes on. You are married to a woman named Jane. You have a son named Billy and a daughter named Sally.";
+            config["background"] = "You live in a quiet town where nothing much goes on.";
             config["personality"] = "You are quiet and reserved, talking in short sentences.";
             config["goals"] = "Live a quiet life.";
+            config["connections"] = "You are married to Jane. You have a son named Billy and a daughter named Sally.";
             config["appearance"] = "Farmer attire";
             config["exampleSentence"] = "<i>Tips hat</i> \"Evening.\"";
             config["memory"] = "Today my wife and I went to the market. We bought some bread and milk.";
