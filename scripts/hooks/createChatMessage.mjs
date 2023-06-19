@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 const LOW_MESSAGE_WARNING = 20;
 let LOW = false;
 let OUT = false;
