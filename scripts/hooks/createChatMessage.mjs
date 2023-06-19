@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 const LOW_MESSAGE_WARNING = 20;
 let LOW = false;
 let OUT = false;
@@ -199,7 +199,7 @@ export async function createChatMessage(message, options, userId) {
     if ( !this.firstGM ) this.firstGM = game.users.find(u => u.isGM && u.active);
     if ( game.user !== this.firstGM ) return;
 
-    const scene = game.scenes.get(message.speaker.scene);
+    const scene = game.scenes.get(message.speaker.scene ?? canvas.scene._id);
 
     //console.dir(message);
 
@@ -301,7 +301,7 @@ function parseStructuredText(text) {
 /* -------------------------------------------- */
 
 async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage) {
-    const scene = game.scenes.get(message.speaker.scene);
+    const scene = game.scenes.get(message.speaker.scene ?? canvas.scene._id);
 
     // Start a timer, if we take longer than 5 seconds, tell the user we are taking longer than expected
     const timer = setTimeout(() => {
