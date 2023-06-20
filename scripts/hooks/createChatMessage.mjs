@@ -315,16 +315,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     // Clear the timer
     clearTimeout(timer);
 
-    // Add this message to the message history as an assistant message
-    messageHistory.push({
-        "role": "assistant",
-        "content": messageContent
-    });
 
-    manageMemory(targetedNpc, messageHistory);
-
-    // Update the npc's message history
-    await targetedNpc.setFlag("intelligent-npcs", "messageHistory", messageHistory);
 
     // Parse message content as json
     let content = "";
@@ -347,6 +338,17 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     } catch (e) {
         content = messageContent;
     }
+
+    // Add this message to the message history as an assistant message
+    messageHistory.push({
+        "role": "assistant",
+        "content": `[RESPONSE]: ${content}\n[MOOD]: ${mood}\n[END_CONVERSATION]: ${endConversation}\n[TARGET]: ${target?.name ?? ""}`
+    });
+
+    manageMemory(targetedNpc, messageHistory);
+
+    // Update the npc's message history
+    await targetedNpc.setFlag("intelligent-npcs", "messageHistory", messageHistory);
 
     // If the NPC we are targeting is the same as the speaker who just spoke to us, increase the backAndForthLength
     let backAndForthLength = message.flags?.["intelligent-npcs"]?.backAndForthLength || 0;
