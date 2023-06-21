@@ -39,6 +39,14 @@
       "path": "languages/en.json"
     }
   ],
+  "packs": [
+    {
+      "name": "free-intelligent-npcs",
+      "label": "Free Intelligent NPCs",
+      "path": "packs/free-intelligent-npcs.db",
+      "type": "JournalEntry"
+    }
+  ],
   "flags": {
     "hotReload": {
       "extensions": ["css", "hbs", "json"],
