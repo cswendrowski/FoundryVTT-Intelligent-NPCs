@@ -1,0 +1,38 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <article class="account">
+        <h1 class="title">Intelligent NPCs Account</h1>
+        <div class="text">
+            <div class="form-group">
+                <label>API Key</label>
+                <div class="form-fields">
+                    <p>{{apiKey}}</p>
+                </div>
+            </div>
+            {{#if errorMessage}}
+                <p class="error-message">{{errorMessage}}</p>
+            {{else}}
+                {{#if status.active}}
+                    <p class="success-message"><b>API Key is valid and active</b></p>
+                {{else}}
+                    <p class="error-message"><b>API Key is invalid or not active</b></p>
+                {{/if}}
+                <hr>
+                <div class="form-group">
+                    <label>Monthly messages used:</label>
+                    <div class="form-fields">
+                        <p>{{status.monthlyRequests}} / {{status.maxMonthlyRequests}}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bought messages remaining:</label>
+                    <div class="form-fields">
+                        <p>{{status.boughtRequests}}</p>
+                    </div>
+                </div>
+            {{/if}}
+            <hr>
+            <p>To adjust how many messages you get a month, visit <a href="https://www.patreon.com/ironmoose">https://www.patreon.com/ironmoose</a></p>
+            <p>For help getting started, checkout the Wiki <a href="https://github.com/cswendrowski/FoundryVTT-Intelligent-NPCs/wiki/How-to-configure-and-use-Intelligent-NPCs">here</a></p>
+        </div>
+    </article>
+</form>

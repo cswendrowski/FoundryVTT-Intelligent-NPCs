@@ -51,7 +51,7 @@ async function callApi(url, body) {
 
     // If this is a 429, we've run out of messages
     else if ( response.status === 429 ) {
-        ui.notifications.error("You have run out of monthly messages for Intelligent NPCs. Please consider supporting the module on Patreon at a higher tier for additional requests.", {permanent: true});
+        ui.notifications.error("You have run out of messages for Intelligent NPCs. Please consider supporting the module on Patreon at a higher tier for additional requests.", {permanent: true});
         OUT = true;
         throw new Error("Out of messages");
     }
@@ -66,7 +66,7 @@ async function callApi(url, body) {
     const remaining = response.headers.get("x-monthly-requests-remaining");
     if ( !LOW && remaining && (parseInt(remaining) <= LOW_MESSAGE_WARNING) ) {
         LOW = true;
-        ui.notifications.warn("You are running low on monthly messages for Intelligent NPCs. Please consider supporting the module on Patreon at a higher tier for additional requests.", {permanent: true});
+        ui.notifications.warn("You are running low on messages for Intelligent NPCs. Please consider supporting the module on Patreon at a higher tier for additional requests.", {permanent: true});
     }
 
     // Read response as plaintext
@@ -315,8 +315,6 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     // Clear the timer
     clearTimeout(timer);
 
-
-
     // Parse message content as json
     let content = "";
     let mood = "";
@@ -360,6 +358,8 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     const maxBackAndForthLength = game.settings.get("intelligent-npcs", "maxBackAndForthLength");
 
     thinkingMessage.delete();
+    const targetedToken = canvas.scene.tokens.find(t => t.actorId == targetedNpc.id);
+    canvas.hud.bubbles.broadcast(targetedToken, content, {});
 
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
