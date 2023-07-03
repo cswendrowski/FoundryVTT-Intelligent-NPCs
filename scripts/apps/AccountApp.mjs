@@ -5,7 +5,7 @@ export default class AccountApp extends Application {
             template: 'modules/intelligent-npcs/templates/account-app.hbs',
             classes: ["intelligent-npcs", "intelligent-npcs-account"],
             width: 450,
-            height: 250
+            height: 350
         });
     }
 

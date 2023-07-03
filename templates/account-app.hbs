@@ -16,6 +16,12 @@
                 {{else}}
                     <p class="error-message"><b>API Key is invalid or not active</b></p>
                 {{/if}}
+                <div class="form-group">
+                    <label><i class="fa-regular fa-circle-question" data-tooltip="Share this Referral Code with others looking to sign up and ask them to send us a message indicating they were referred, along with their code. Both you and the person you referred will be granted an additional 1000 messages that don't expire as thanks for sharing the love!"></i> Referral Code:</label>
+                    <div class="form-fields">
+                        <p style="user-select: text;">{{status.referralCode}}</p>
+                    </div>
+                </div>
                 <hr>
                 <div class="form-group">
                     <label>Monthly messages used:</label>
