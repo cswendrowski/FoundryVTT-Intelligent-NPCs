@@ -91,6 +91,17 @@ async function getConfig(npc) {
     if ( actorConfig.appearance ) config.appearance = actorConfig.appearance;
     if ( actorConfig.messageHistory ) config.messageHistory = actorConfig.messageHistory;
     if ( actorConfig.memory ) config.memory = actorConfig.memory;
+
+    if ( page.name !== npc.name ) {
+        config.summary = config.summary.replace(new RegExp(page.name, "g"), npc.name);
+        config.appearance = config.appearance.replace(new RegExp(page.name, "g"), npc.name);
+        config.background = config.background.replace(new RegExp(page.name, "g"), npc.name);
+        config.personality = config.personality.replace(new RegExp(page.name, "g"), npc.name);
+        config.goals = config.goals.replace(new RegExp(page.name, "g"), npc.name);
+        if ( config.connections ) config.connections = config.connections.replace(new RegExp(page.name, "g"), npc.name);
+        config.exampleSentence = config.exampleSentence.replace(new RegExp(page.name, "g"), npc.name);
+    }
+
     delete config.name;
     return config;
 }

@@ -1,0 +1,46 @@
+<section class="packs">
+    {{#each packs as |pack|}}
+        <div class="col-md-4">
+            <div class="panel panel-default flexrow">
+                <div class="panel-main">
+                    <h1 class="panel-title">{{pack.fields.name}}</h1>
+                    {{#each pack.fields.image as |image|}}
+                        <img src="{{image.url}}" class="pack-image">
+                    {{/each}}
+                    <p class="pack-summary">{{pack.fields.summary}}</p>
+                    <div class="pack-actions">
+                        {{#if pack.imported}}
+                            <button class="btn btn-default" disabled="disabled" data-pack-id="{{pack.id}}"><i class="fa-solid fa-folder-arrow-down"></i> Pack already downloaded</button>
+                        {{else}}
+                            <button class="btn btn-default" data-pack-id="{{pack.id}}" data-action="download"><i class="fa-solid fa-folder-arrow-down"></i> Download Pack</button>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <h2>NPCs</h2>
+                    <div class="npcs flexrow">
+                        {{#each pack.fields.npcs as |npc|}}
+                            <div class="npc flexcol">
+                                <div class="npc-image">
+                                    {{#each npc.fields.image as |image|}}
+                                        <img src="{{image.url}}">
+                                    {{/each}}
+                                </div>
+                                <h3 class="npc-name"><i class="fa-solid {{npc.icon}}" data-tooltip="{{npc.iconTooltip}}"></i> {{npc.fields.name}}</h3>
+                                <p>{{npc.fields.summary}}</p>
+                                <div class="npc-actions">
+                                    {{#if npc.imported}}
+                                        <button class="btn btn-default" data-action="open" data-journal-id="{{pack.journalId}}" data-page-id="{{npc.pageId}}"><i class="fa-solid fa-book-open"></i> Open Journal</button>
+                                    {{else}}
+                                        <button class="btn btn-default" data-action="download" data-npc-id="{{npc.id}}" {{#unless npc.downloadable}}disabled="disabled" data-tooltip="This is a Premium NPC. Subscribe at the Golden Envoy tier to get access"{{/unless}}><i class="fa-duotone fa-download"></i> Download</button>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {{/each}}
+</section>

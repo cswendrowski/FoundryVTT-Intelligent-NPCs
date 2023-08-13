@@ -1,0 +1,76 @@
+.chat-message {
+  .message-header {
+    .message-sender {
+      flex: 4;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  > .message-content > * {
+    user-select: auto;
+  }
+
+  > .message-content > p > * {
+    user-select: auto;
+  }
+}
+
+.sheet.journal-entry-page {
+  .form-group.inpc-header {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.inpc-header {
+  > img {
+    flex: 0;
+  }
+
+  > h2 {
+    align-self: flex-start;
+    margin-left: 1rem;
+  }
+}
+
+.inpc-info {
+  > img {
+    flex: 0;
+    margin-right: 1rem;
+  }
+
+  > div {
+    align-self: flex-start;
+  }
+}
+
+.inpc-journal-page-link {
+  cursor: pointer;
+}
+
+#intelligent-npcs-browser {
+  .panel-main {
+    width: 30%;
+    margin-right: 1rem;
+
+    .pack-summary {
+      font-size: 16px;
+    }
+  }
+  .panel-body {
+    margin-top: 8px;
+  }
+
+  .npc {
+    margin: 0.5rem;
+    flex: 0 0 calc(30%);
+
+    .npc-name {
+      flex: 0;
+    }
+
+    .npc-actions {
+      flex: 0;
+    }
+  }
+}

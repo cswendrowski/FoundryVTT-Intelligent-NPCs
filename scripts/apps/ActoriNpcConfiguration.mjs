@@ -35,7 +35,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         }
 
         const inpcJournals = game.journal.filter(journalEntry => journalEntry.pages
-            .find(p => p.getFlag("intelligent-npcs", "enabled")));
+            .find(p => p.getFlag("core", "sheetClass") === "intelligent-npcs.NpcPageSheet"));
         const inpcJournalPages = inpcJournals
             .reduce((obj, journal) => {
                 const pages = journal.pages.filter(p => !foundry.utils.isEmpty(p.flags["intelligent-npcs"]));
@@ -143,6 +143,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
                 token.update({
                     name: page.name,
                     img: selectedPageConfig["img"],
+                    actorLink: true,
                 });
             }
         }
