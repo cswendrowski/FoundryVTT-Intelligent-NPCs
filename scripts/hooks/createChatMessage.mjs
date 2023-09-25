@@ -6,7 +6,7 @@ let NEEDS_KEY = false;
 
 /* -------------------------------------------- */
 
-async function callApi(url, body) {
+export async function callApi(url, body) {
 
     if ( NEEDS_KEY ) {
         throw new Error("Set a valid API Key");
@@ -76,7 +76,7 @@ async function callApi(url, body) {
 
 /* -------------------------------------------- */
 
-async function getConfig(npc) {
+export async function getConfig(npc) {
     if ( !npc ) return {};
     const actorConfig = npc.flags["intelligent-npcs"];
     const pageId = npc.getFlag("intelligent-npcs", "journalPage");
@@ -308,6 +308,11 @@ function parseStructuredText(text) {
     };
 }
 
+/* -------------------------------------------- */
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 /* -------------------------------------------- */
 
@@ -363,14 +368,27 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     let backAndForthLength = message.flags?.["intelligent-npcs"]?.backAndForthLength || 0;
     if (target?.name === message.speaker.alias) {
         backAndForthLength++;
+
+        const backAndForthDelay = game.settings.get("intelligent-npcs", "backAndForthDelay");
+        if ( backAndForthDelay > 0 ) {
+            const delayAmount = Math.floor(message.content.split(" ").length / backAndForthDelay) * 1000;
+            thinkingMessage.update({
+                content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Responding...`
+            });
+            await delay(delayAmount);
+        }
     } else {
         backAndForthLength = 0;
     }
     const maxBackAndForthLength = game.settings.get("intelligent-npcs", "maxBackAndForthLength");
 
     thinkingMessage.delete();
-    const targetedToken = canvas.scene.tokens.find(t => t.actorId == targetedNpc.id);
-    canvas.hud.bubbles.broadcast(targetedToken, content, {});
+    try {
+        const targetedToken = canvas.scene.tokens.find(t => t.actorId == targetedNpc.id);
+        canvas.hud.bubbles.broadcast(targetedToken, content, {});
+    }
+    catch (e) {
+    }
 
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
