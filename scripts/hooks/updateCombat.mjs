@@ -66,7 +66,7 @@ async function createAiResponse(npc, combat, messageHistory, defeated=false) {
                 "targetedNpc": npc
             }
             await ChatMessage.create({
-                content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details. <button class="inpc-retry-message"><i class="fa-solid fa-arrow-right-from-bracket"></i> Retry</button>`,
+                content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details.`,
                 type: CONST.CHAT_MESSAGE_TYPES.OOC,
                 whisper: game.users.filter(u => u.isGM).map(u => u._id),
                 flags: {
