@@ -18,19 +18,28 @@ export async function renderChatMessage(message, html, data) {
     });
 
     // find .message-sender and append the target's name
+    const moodPosition = game.settings.get("intelligent-npcs", "moodPosition");
     const sender = html.find(".message-sender");
-    let toAppend = "";
+    let toAppendToName = "";
+    let toPrependToContent = "";
 
     const mood = message.flags["intelligent-npcs"]?.mood;
     if ( mood ) {
-        toAppend += ` <i>(${mood})</i>`;
+        if ( moodPosition === "inline" ) toAppendToName += ` <i>(${mood})</i>`;
+        else toPrependToContent += `<i>${mood}</i>`;
     }
 
     const targetName = message.flags["intelligent-npcs"]?.targetName;
     if ( targetName ) {
-        toAppend +=` ➡ ${targetName}`;
+        toAppendToName +=` ➡ ${targetName}`;
     }
 
-    sender.append(toAppend);
-    sender[0].dataset.tooltip = sender[0].innerHTML;
+    if ( toAppendToName ) {
+        sender.append(toAppendToName);
+        sender[0].dataset.tooltip = sender[0].innerHTML;
+    }
+
+    if ( moodPosition === "below" ) {
+        html.find(".message-content").prepend(`<b>${toPrependToContent}</b>`);
+    }
 }

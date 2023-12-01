@@ -390,6 +390,15 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     catch (e) {
     }
 
+    if ( game.modules.get("acd-talking-actors")?.active && game.settings.get("intelligent-npcs", "talkingActorsEnabled") ) {
+        const copy = game.talkingactors.connector.postToChat;
+        game.talkingactors.connector.postToChat = (chatData, flavor, messageText) => {
+        };
+        game.talkingactors.connector.processChatMessage(null, "/talk " + content, {
+            speaker: ChatMessage.getSpeaker({actor: targetedNpc})
+        });
+        game.talkingactors.connector.postToChat = copy;
+    }
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
         content: `<div>${content}</div>`,

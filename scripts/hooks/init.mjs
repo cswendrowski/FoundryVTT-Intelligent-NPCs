@@ -38,6 +38,31 @@ export async function init() {
         default: true
     });
 
+    game.settings.register("intelligent-npcs", "moodPosition", {
+        name: "Mood Position",
+        hint: "Where to display the mood text on the chat message, such as 'annoyed'.",
+        scope: "world",
+        config: true,
+        type: String,
+        choices: {
+            "inline": "Inline with Name, such as 'Bob (annoyed)'",
+            "below": "Below Name, such as 'Bob' on one line and 'annoyed' on the next",
+        },
+        default: "below",
+        reload: true,
+    });
+
+    if ( game.modules.get("acd-talking-actors")?.active ) {
+        game.settings.register("intelligent-npcs", "talkingActorsEnabled", {
+            name: "Enable Talking Actors Integration",
+            hint: "If enabled, NPCs will use the Talking Actors module to narrate their chat messages.",
+            scope: "world",
+            config: true,
+            type: Boolean,
+            default: true
+        });
+    }
+
     DocumentSheetConfig.registerSheet(JournalEntryPage, "intelligent-npcs", NpcPageSheet, {
         types: ["text"],
         label() {

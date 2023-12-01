@@ -4,10 +4,19 @@
   overflow: hidden;
 }
 .chat-message > .message-content > * {
-  user-select: auto;
+  user-select: text;
+}
+.chat-message > .message-content > p {
+  user-select: text;
 }
 .chat-message > .message-content > p > * {
-  user-select: auto;
+  user-select: text;
+}
+.chat-message > .message-content > div > p > * {
+  user-select: text;
+}
+.chat-message > .message-content > div > p {
+  user-select: text;
 }
 
 .sheet.journal-entry-page .form-group.inpc-header {

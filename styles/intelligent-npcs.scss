@@ -8,11 +8,23 @@
   }
 
   > .message-content > * {
-    user-select: auto;
+    user-select: text;
+  }
+
+  > .message-content > p {
+    user-select: text;
   }
 
   > .message-content > p > * {
-    user-select: auto;
+    user-select: text;
+  }
+
+  > .message-content > div > p > * {
+    user-select: text;
+  }
+
+  > .message-content > div > p {
+    user-select: text;
   }
 }
 
