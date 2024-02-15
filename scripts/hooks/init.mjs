@@ -19,8 +19,8 @@ export async function init() {
         config: true,
         type: String,
         choices: {
-            "v1": "V1 - Faster, the Default Model",
-            "v2": "V2 - More Capable, Gold Only"
+            "v1": "V1 - Faster, the Default stable Model",
+            "v2": "V2 - More Capable, Gold Only. Currently in Beta and may have issues."
         },
         requiresReload: true,
     });

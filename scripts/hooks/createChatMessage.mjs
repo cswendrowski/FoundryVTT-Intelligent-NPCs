@@ -238,8 +238,8 @@ export async function createChatMessage(message, options, userId) {
     if ( message.content.includes("Thinking...") ) return;
     if ( message.content.includes("Processing failed.") ) return;
 
-    // If the message is OOC, return
-    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC ) return;
+    // If the message is OOC or a Roll, return
+    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC || message.type === CONST.CHAT_MESSAGE_TYPES.ROLL ) return;
 
     // Get the user who created the message
     const user = message.user;
