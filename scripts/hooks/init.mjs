@@ -8,7 +8,21 @@ export async function init() {
         default: "",
         config: true,
         type: String,
-        reload: true,
+        requiresReload: true,
+    });
+
+    game.settings.register("intelligent-npcs", "model", {
+        name: "Intelligent NPCs Model",
+        hint: "The model to use for generating NPC chat messages. If you select a model that you don't have access to, it will default to V1.",
+        scope: "world",
+        default: "v1",
+        config: true,
+        type: String,
+        choices: {
+            "v1": "V1 - Faster, the Default Model",
+            "v2": "V2 - More Capable, Gold Only"
+        },
+        requiresReload: true,
     });
 
     game.settings.register("intelligent-npcs", "maxBackAndForthLength", {
@@ -38,6 +52,15 @@ export async function init() {
         default: true
     });
 
+    game.settings.register("intelligent-npcs", "sameSceneContext", {
+        name: "Enable Same-Scene Context",
+        hint: "If enabled, NPCs will be able to use Chatlog context from the same Scene to inform their chat messages.",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true
+    });
+
     game.settings.register("intelligent-npcs", "moodPosition", {
         name: "Mood Position",
         hint: "Where to display the mood text on the chat message, such as 'annoyed'.",
@@ -49,7 +72,7 @@ export async function init() {
             "below": "Below Name, such as 'Bob' on one line and 'annoyed' on the next",
         },
         default: "below",
-        reload: true,
+        requiresReload: true,
     });
 
     if ( game.modules.get("acd-talking-actors")?.active ) {

@@ -15,7 +15,7 @@ export default class AccountApp extends Application {
         data.apiKey = game.settings.get("intelligent-npcs", "apiKey");
 
         try {
-            const response = await fetch("https://intelligentnpcs.azurewebsites.net/api//AccountStatus?code=I_ZasRU0hlvW5Q8y7zzYl4ZLnc3S8F9roA6H0I-idQuuAzFuUd5Srw==&clientId=module", {
+            const response = await fetch("https://intelligentnpcs.azurewebsites.net/api/AccountStatus?code=I_ZasRU0hlvW5Q8y7zzYl4ZLnc3S8F9roA6H0I-idQuuAzFuUd5Srw==&clientId=module", {
                 headers: {
                     "x-api-key": data.apiKey
                 }

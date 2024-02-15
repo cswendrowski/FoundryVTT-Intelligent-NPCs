@@ -117,7 +117,8 @@ async function chatCompletion(npc, message, scene) {
     const speakerConfig = await getConfig(speakerToken?.actor);
     const speakerSummary = speakerConfig?.summary ?? "";
     const speakerAppearance = speakerConfig?.appearance ?? "";
-    const body = {
+
+    let body = {
         "name": npc.name,
         "message": message.content,
         "tokenNames": allTokenNames,
@@ -127,6 +128,21 @@ async function chatCompletion(npc, message, scene) {
         "sceneContext": sceneContext,
         ...config
     };
+    const model = game.settings.get("intelligent-npcs", "model");
+    body.model = model;
+
+    if ( game.settings.get("intelligent-npcs", "sameSceneContext") && canvas?.scene ) {
+        const sameSceneMessages = game.messages.filter(m => m.type === CONST.CHAT_MESSAGE_TYPES.IC && m.speaker &&
+            m.speaker.scene == canvas.scene.id && m.speaker.alias !== npc.name);
+        // Take only the last 10 messages
+        const sameSceneMessagesSlice = sameSceneMessages.slice(-10);
+        const sameSceneMessageContent = sameSceneMessagesSlice.map(message => {
+            const content = `Speaker: ${message.speaker.alias ?? "Unknown"} Message:<p>${message.content}</p>`;
+            return content;
+        });
+        body.sameSceneMessages = sameSceneMessageContent;
+    }
+
     const response = await callApi("ChatCompletion", body);
     return response;
 }
@@ -177,6 +193,11 @@ export async function createAiResponse(targetedNpc, message, messageHistory) {
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
         content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking...`,
         type: CONST.CHAT_MESSAGE_TYPES.IC,
+        flags: {
+            vino: {
+                skip: true
+            }
+        }
     });
     try {
         await respondAsAI(targetedNpc, message, messageHistory, thinkingMessage);
@@ -217,6 +238,9 @@ export async function createChatMessage(message, options, userId) {
     if ( message.content.includes("Thinking...") ) return;
     if ( message.content.includes("Processing failed.") ) return;
 
+    // If the message is OOC, return
+    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC ) return;
+
     // Get the user who created the message
     const user = message.user;
 
@@ -246,11 +270,17 @@ export async function createChatMessage(message, options, userId) {
     // get the message history from the npc flags
     const messageHistory = targetedNpc.getFlag("intelligent-npcs", "messageHistory") || [];
 
-    // Add this message to the message history as a user message
+    // Add this message to the message history as a user message. If the message is a GM whisper, interpret it as a command
+    let content = "";
+    if ( message.type === CONST.CHAT_MESSAGE_TYPES.WHISPER && message.user.isGM ) {
+        content = `${message.content}`;
+    }
+    else {
+        content = `Speaker: ${message.speaker.alias ?? "Unknown"} Message:<p>${message.content}</p>`;
+    }
     messageHistory.push({
         "role": "user",
-        //"content": `{ "response": "Speaker: ${message.speaker.alias} Message:${message.content}", "mood": "neutral", "endConversation": false, "target": "${targetedNpc.name}" }`
-        "content": `Speaker: ${message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown")} Message:<p>${message.content}</p>`
+        "content": content
     });
     await createAiResponse(targetedNpc, message, messageHistory);
 }
@@ -268,12 +298,22 @@ function parseAsJson(messageContent) {
     //     return (seen % 2) ? "<i>" : "</i>";
     // });
 
-    return {
+    let responseData = {
         response: parsedMessageContent.content,
         mood: parsedMessageContent.mood,
         target: parsedMessageContent.target,
         endConversation: parsedMessageContent.endConversation
     }
+
+    // Parse trailing , from mood and response
+    if (responseData.mood.endsWith(",")) {
+        responseData.mood = responseData.mood.slice(0, -1);
+    }
+    if (responseData.response.endsWith(",")) {
+        responseData.response = responseData.response.slice(0, -1);
+    }
+
+    return responseData;
 }
 
 /* -------------------------------------------- */
@@ -405,7 +445,8 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
         type: CONST.CHAT_MESSAGE_TYPES.IC,
         flags: {
             vino: {
-                mood: mood
+                mood: mood,
+                skipAutoQuote: true
             },
             "intelligent-npcs": {
                 target: target?._id,
