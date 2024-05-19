@@ -7,6 +7,7 @@ import {renderSceneConfig} from "./hooks/renderSceneConfig.mjs";
 import {renderSettings} from "./hooks/renderSettings.mjs";
 import {renderJournalEntryDirectory} from "./hooks/renderJournalEntryDirectory.mjs";
 import {updateCombat, updateCombatant} from "./hooks/updateCombat.mjs";
+import getUserContextOptions from "./hooks/getUserContextOptions.mjs";
 
 Hooks.once("init", init);
 Hooks.once("ready", ready);
@@ -18,3 +19,4 @@ Hooks.on("renderSettings", renderSettings);
 Hooks.on("renderJournalDirectory", renderJournalEntryDirectory);
 Hooks.on("updateCombat", updateCombat);
 Hooks.on("updateCombatant", updateCombatant);
+Hooks.on("getUserContextOptions", getUserContextOptions);
