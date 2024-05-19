@@ -111,6 +111,7 @@ export async function getConfig(npc) {
 async function chatCompletion(npc, message, scene) {
     const allTokenNames = scene.tokens.map(t => t.name);
     const sceneContext = scene.getFlag("intelligent-npcs", "sceneInfo") || "";
+    const worldContext = game.world.flags["intelligent-npcs"].worldContext || "";
     const config = await getConfig(npc);
     // If the speaker has a summary, load it
     const speakerToken = scene.tokens.get(message.speaker.token);
@@ -126,6 +127,7 @@ async function chatCompletion(npc, message, scene) {
         "speakerSummary": speakerSummary,
         "speakerAppearance": speakerAppearance,
         "sceneContext": sceneContext,
+        "worldContext": worldContext,
         ...config
     };
     const model = game.settings.get("intelligent-npcs", "model");
@@ -142,6 +144,8 @@ async function chatCompletion(npc, message, scene) {
         });
         body.sameSceneMessages = sameSceneMessageContent;
     }
+
+    body.experiment = game.settings.get("intelligent-npcs", "experiment");
 
     const response = await callApi("ChatCompletion", body);
     return response;
@@ -160,6 +164,8 @@ function newCoreMemory(npc, messageHistory) {
     console.log("Forming new core memory");
     callApi("CoreMemory", {
         "memory": currentMemory,
+        "name": npc.name,
+        "experiment": game.settings.get("intelligent-npcs", "experiment"),
         "messageHistory": messageHistory
     }).then(memory => {
         //console.dir(memory);
@@ -358,6 +364,12 @@ function delay(ms) {
 
 async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage) {
     const scene = game.scenes.get(message.speaker.scene ?? canvas.scene._id);
+
+    // If there is a "stop" command, end the conversation
+    if ( game.world.flags["intelligent-npcs"].stopConversations ) {
+        game.world.flags["intelligent-npcs"].stopConversations = false;
+        return;
+    }
 
     // Start a timer, if we take longer than 5 seconds, tell the user we are taking longer than expected
     const timer = setTimeout(() => {

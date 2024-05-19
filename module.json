@@ -29,6 +29,7 @@
     "scripts/intelligent-npcs.mjs"
   ],
   "scripts": [
+    "scripts/lib/signalr.js"
   ],
   "styles": [
     "styles/intelligent-npcs.css"
