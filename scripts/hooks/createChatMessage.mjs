@@ -409,7 +409,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     const scene = game.scenes.get(message.speaker.scene ?? canvas.scene._id);
 
     // If there is a "stop" command, end the conversation
-    if ( game.world.flags["intelligent-npcs"].stopConversations ) {
+    if ( game.world.flags["intelligent-npcs"]?.stopConversations ) {
         game.world.flags["intelligent-npcs"].stopConversations = false;
         return;
     }
