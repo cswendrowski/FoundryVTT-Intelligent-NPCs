@@ -111,7 +111,7 @@ export async function getConfig(npc) {
 async function chatCompletion(npc, message, scene) {
     const allTokenNames = scene.tokens.map(t => t.name);
     const sceneContext = scene.getFlag("intelligent-npcs", "sceneInfo") || "";
-    const worldContext = game.world.flags["intelligent-npcs"].worldContext || "";
+    const worldContext = game.world.flags["intelligent-npcs"]?.worldContext || "";
     const config = await getConfig(npc);
 
     // If the speaker has a summary, load it
