@@ -1,0 +1,35 @@
+direction: up
+
+World Context: {
+  explanation: |md
+    All NPCs know this, great for context like Setting info
+  |
+}
+
+Scene Context: {
+  explanation: |md
+    Specific to a single Scene, great for context about where the NPC is and describing the map.
+
+    If Same-Scene Context is on, any Chat Messages from Tokens on this Scene will be added as Context as well.
+  |
+}
+
+Area Context: {
+  explanation: |md
+    A subarea of a Scene defined by a Drawing, for when it matters exactly where an NPC is on the map (murder mystery anyone?)
+  |
+}
+
+NPC Context: {
+  explanation: |md
+    NPCS know a lot about themselves, such as their personality, memory, appearance, and goals.
+  |
+}
+
+Speaker Context: {
+  explanation: |md
+    Tokens speaking to NPCs have a small amount of info - their summary and appearance - given to the NPC as well, so the NPC knows who they are talking to
+  |
+}
+
+World Context <- Scene Context <- Area Context <- NPC Context <- Speaker Context

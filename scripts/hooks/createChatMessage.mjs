@@ -113,11 +113,16 @@ async function chatCompletion(npc, message, scene) {
     const sceneContext = scene.getFlag("intelligent-npcs", "sceneInfo") || "";
     const worldContext = game.world.flags["intelligent-npcs"].worldContext || "";
     const config = await getConfig(npc);
+
     // If the speaker has a summary, load it
     const speakerToken = scene.tokens.get(message.speaker.token);
     const speakerConfig = await getConfig(speakerToken?.actor);
     const speakerSummary = speakerConfig?.summary ?? "";
     const speakerAppearance = speakerConfig?.appearance ?? "";
+
+    // Get the subarea context if it exists
+    const subareaContext = getSubareaContext(scene, npc.token?._object);
+    console.log(subareaContext);
 
     let body = {
         "name": npc.name,
@@ -126,7 +131,7 @@ async function chatCompletion(npc, message, scene) {
         "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
         "speakerSummary": speakerSummary,
         "speakerAppearance": speakerAppearance,
-        "sceneContext": sceneContext,
+        "sceneContext": sceneContext + "\n\n" + subareaContext,
         "worldContext": worldContext,
         ...config
     };
@@ -149,6 +154,44 @@ async function chatCompletion(npc, message, scene) {
 
     const response = await callApi("ChatCompletion", body);
     return response;
+}
+
+/* -------------------------------------------- */
+
+function getSubareaContext(scene, token) {
+    if ( !token ) return "";
+    const { x, y } = token.center;
+    let subareaContext = "";
+
+    for (const drawing of scene.drawings) {
+        const shape = drawing.shape;
+        let inside = false;
+        // Polygon
+        if (shape.type === "p") {
+            const points = shape.points;
+            const polygon = new PIXI.Polygon(points);
+            inside = polygon.contains((x - drawing.x), (y - drawing.y));
+        }
+
+        // Rectangle
+        else if (shape.type === "r") {
+            const startX = shape.parent.x;
+            const startY = shape.parent.y;
+            const points = [
+                startX, startY,
+                startX + shape.width, startY,
+                startX + shape.width, startY + shape.height,
+                startX, startY + shape.width
+            ];
+            const polygon = new PIXI.Polygon(points);
+            inside = polygon.contains(x, y);
+        }
+
+        if (inside) {
+            subareaContext += drawing.flags["intelligent-npcs"]?.drawingContext + "\n\n" || "";
+        }
+    }
+    return subareaContext;
 }
 
 /* -------------------------------------------- */

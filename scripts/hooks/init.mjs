@@ -25,6 +25,16 @@ export async function init() {
         requiresReload: true,
     });
 
+    game.settings.register("intelligent-npcs", "experiment", {
+        name: "Intelligent NPCs Experiment",
+        hint: "From time to time, we'll have new experimental model tweaks that you can try out. Keep an eye on the Patreon for more information.",
+        scope: "world",
+        default: "",
+        config: true,
+        type: String,
+        requiresReload: true,
+    });
+
     game.settings.register("intelligent-npcs", "maxBackAndForthLength", {
         name: "Maximum NPC Back-and-Forth",
         hint: "When NPCs chat between each other, this is the maximum number of messages that will be sent in a single conversation to prevent infinite conversations. Set to 0 to disable.",
