@@ -19,8 +19,8 @@ export async function init() {
         config: true,
         type: String,
         choices: {
-            "v1": "V1 - Faster, the Default stable Model",
-            "v2": "V2 - More Capable, Gold Only. Currently in Beta and may have issues."
+            "v1": "Standard - Faster and Cheaper - The default model. Costs 1 message per chat message. Great for your general run-of-the mill mooks and mobs.",
+            "v2": "Enhanced - More Capable and Nuanced, but costs 10 messages per chat message. Great for your setpiece bosses and NPCS your party will interact with often.",
         },
         requiresReload: true,
     });

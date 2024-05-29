@@ -135,8 +135,14 @@ async function chatCompletion(npc, message, scene) {
         "worldContext": worldContext,
         ...config
     };
-    const model = game.settings.get("intelligent-npcs", "model");
-    body.model = model;
+    const defaultModel = game.settings.get("intelligent-npcs", "model");
+    const npcModel = npc.getFlag("intelligent-npcs", "model");
+    if ( !npcModel || npcModel === "default" ) {
+        body.model = defaultModel;
+    }
+    else {
+        body.model = npcModel;
+    }
 
     if ( game.settings.get("intelligent-npcs", "sameSceneContext") && canvas?.scene ) {
         const sameSceneMessages = game.messages.filter(m => m.type === CONST.CHAT_MESSAGE_TYPES.IC && m.speaker &&

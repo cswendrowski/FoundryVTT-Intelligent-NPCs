@@ -9,6 +9,16 @@
             <label><i class="fa-regular fa-brain-circuit"></i> AI Enabled</label>
             <input type="checkbox" name="enabled" {{checked config.enabled}}>
         </div>
+        <div class="form-group-stacked">
+            <label><i class="fa-regular fa-gear"></i> AI Model</label>
+            <select name="model">
+                {{#select config.model}}
+                <option value="default">World Default</option>
+                <option value="v1">Standard - Faster and Cheaper - The default model. Costs 1 message per chat message. Great for your general run-of-the mill mooks and mobs.</option>
+                <option value="v2">Enhanced - More Capable and Nuanced, but costs 10 messages per chat message. Great for your setpiece bosses and NPCS your party will interact with often.</option>
+                {{/select}}
+            </select>
+        </div>
 
         <div class="form-group-stacked">
             <label>Journal Page <i class="inpc-journal-page-link fas fa-file-lines" data-uuid="{{journalPageUUID}}"></i></label>
@@ -39,12 +49,14 @@
 
         <div class="form-group-stacked">
             <label>Summary</label>
-            <textarea class="form-control" rows=2 name="summary" placeholder="Description">{{config.summary}}</textarea>
+            <textarea class="form-control" rows=2 name="summary" placeholder="{{actor.name}} is a generic person who is well known for existing." maxlength="500">{{config.summary}}</textarea>
+            <p class="notes">A quick summary of what others generally know about this person. Write in third person. Overrides the Journal details if set. Max length: 500 characters</p>
         </div>
 
         <div class="form-group-stacked">
             <label>Appearance</label>
-            <textarea class="form-control" rows="3" name="appearance" placeholder="Appearance">{{config.appearance}}</textarea>
+            <textarea class="form-control" rows="3" name="appearance" placeholder="{{actor.name}} wears standard street wear." maxlength="500">{{config.appearance}}</textarea>
+            <p class="notes">What this character looks like to others. Write in third person. Overrides the Journal details if set. Max length: 500 characters</p>
         </div>
     </fieldset>
 

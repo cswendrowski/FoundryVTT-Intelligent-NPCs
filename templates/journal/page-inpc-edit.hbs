@@ -6,47 +6,50 @@
 
     <fieldset>
         <legend>Public</legend>
-        <p class="notes">These fields will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know</p>
+        <p class="notes">These fields will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know. These fields should be written in third person.</p>
 
         <div class="form-group-stacked">
             <label>Summary</label>
-            <textarea class="form-control" rows=2 name="summary" placeholder="Description">{{config.summary}}</textarea>
+            <textarea class="form-control" rows="4" name="summary" placeholder="{{actor.name}} is a generic person who is well known for existing." maxlength="500">{{config.summary}}</textarea>
+            <p class="notes">A quick summary of what others generally know about this person. Write in third person. Max length: 500 characters</p>
         </div>
 
         <div class="form-group-stacked">
             <label>Appearance</label>
-            <textarea class="form-control" rows="3" name="appearance" placeholder="Appearance">{{config.appearance}}</textarea>
+            <textarea class="form-control" rows="4" name="appearance" placeholder="{{actor.name}} wears standard street wear." maxlength="500">{{config.appearance}}</textarea>
+            <p class="notes">What this character looks like to others. Write in third person. Max length: 500 characters</p>
         </div>
     </fieldset>
 
 
     <fieldset>
         <legend>Personality</legend>
+        <p class="notes">The following fields should be written in first person.</p>
 
         <div class="form-group-stacked">
             <label>Background</label>
-            <textarea class="form-control" rows="5" name="background" placeholder="Background">{{config.background}}</textarea>
+            <textarea class="form-control" rows="8" name="background" placeholder="Background" maxlength="500">{{config.background}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Personality</label>
-            <textarea class="form-control" rows="5" name="personality" placeholder="Personality">{{config.personality}}</textarea>
+            <textarea class="form-control" rows="8" name="personality" placeholder="Personality">{{config.personality}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Goals</label>
-            <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
+            <textarea class="form-control" rows="4" name="goals" placeholder="Goals">{{config.goals}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Connections</label>
-            <textarea class="form-control" rows="3" name="connections" placeholder="Connections">{{config.connections}}</textarea>
+            <textarea class="form-control" rows="4" name="connections" placeholder="Connections">{{config.connections}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Example Sentence</label>
             <p class="notes">You should wrap emoting text with &lt;i&gt; tags, such as &lt;i&gt;Waves&lt;/i&gt;</p>
-            <textarea class="form-control" rows="1" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
+            <textarea class="form-control" rows="2" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
         </div>
 
         <div class="form-group-stacked">
