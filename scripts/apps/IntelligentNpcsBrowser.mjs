@@ -178,7 +178,7 @@ export default class IntelligentNpcsBrowser extends Application {
 
         // If the Page for the record doesn't exist, create it
         let page = journal.pages.getName(npc.fields.name);
-        if ( page && !force ) return;
+        if ( page && !force ) return { journal: journal, page: page };
         else if ( !page ) {
             const created = await journal.createEmbeddedDocuments("JournalEntryPage", [{
                 name: npc.fields.name,
