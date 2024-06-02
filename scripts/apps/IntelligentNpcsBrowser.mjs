@@ -150,7 +150,7 @@ export default class IntelligentNpcsBrowser extends Application {
 
     /* -------------------------------------------- */
 
-    async downloadNpc(npcId) {
+    async downloadNpc(npcId, force=false) {
         const pack = IntelligentNpcsBrowser._npcDataCache.packs.find(p => p.fields.npcs.find(n => n.id == npcId));
         const npc = IntelligentNpcsBrowser._npcDataCache.packs.flatMap(p => p.fields.npcs).find(n => n.id == npcId);
 
@@ -196,6 +196,8 @@ export default class IntelligentNpcsBrowser extends Application {
         }
 
         // Save the image
+        await this._createFolderIfMissing("modules");
+        await this._createFolderIfMissing("modules/intelligent-npcs");
         await this._createFolderIfMissing("modules/intelligent-npcs/storage");
         await this._createFolderIfMissing("modules/intelligent-npcs/storage/images");
         let imageFolder = await FilePicker.browse("data", "modules/intelligent-npcs/storage/images");
