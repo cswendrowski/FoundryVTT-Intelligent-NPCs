@@ -200,7 +200,13 @@ export default class IntelligentNpcsBrowser extends Application {
         await this._createFolderIfMissing("modules/intelligent-npcs");
         await this._createFolderIfMissing("modules/intelligent-npcs/storage");
         await this._createFolderIfMissing("modules/intelligent-npcs/storage/images");
-        let imageFolder = await FilePicker.browse("data", "modules/intelligent-npcs/storage/images");
+
+        let source = "data";
+        if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
+            source = "forgevtt";
+        }
+
+        let imageFolder = await FilePicker.browse(source, "modules/intelligent-npcs/storage/images");
         let matchingFile = imageFolder.files.find(x => x.endsWith(filename));
         if ( filename && matchingFile ) {
             img = matchingFile;
@@ -210,7 +216,7 @@ export default class IntelligentNpcsBrowser extends Application {
             let response = await fetch(img);
             let blob = await response.blob();
             let file = new File([blob], filename);
-            let fileResponse = await FilePicker.upload("data", "modules/intelligent-npcs/storage/images", file, {});
+            let fileResponse = await FilePicker.upload(source, "modules/intelligent-npcs/storage/images", file, {});
             img = fileResponse.path;
         }
 
