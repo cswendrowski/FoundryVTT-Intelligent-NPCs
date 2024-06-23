@@ -1,5 +1,5 @@
 {
-  "id": "intelligent-npcs-custom",
+  "id": "intelligent-npcs",
   "title": "Intelligent NPCs Custom",
   "description": "Custom API version of Intelligent NPCs",
   "version": "#{VERSION}#",
