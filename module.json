@@ -1,7 +1,7 @@
 {
-  "id": "intelligent-npcs",
-  "title": "Intelligent NPCs",
-  "description": "Intelligent NPCs to bring more life to your games",
+  "id": "intelligent-npcs-custom",
+  "title": "Intelligent NPCs Custom",
+  "description": "Custom API version of Intelligent NPCs",
   "version": "#{VERSION}#",
   "library": "false",
   "manifestPlusVersion": "1.2.0",
@@ -13,12 +13,19 @@
   },
   "authors": [
     {
+      "name": "codequiver",
+      "github":"https://github.com/CodeQuiver",
+      "comment": "fork author responsible for customization code"
+    },
+    {
       "name": "Cody Swendrowski",
-      "discord": "cswendrowski#9701"
+      "discord": "cswendrowski#9701",
+      "comment": "original author of Intelligent NPCs"
     },
     {
       "name": "Roman Trevisanut",
-      "discord": "Cobalt#7779"
+      "discord": "Cobalt#7779",
+      "comment": "original author of Intelligent NPCs"
     }
   ],
   "relationships": {
