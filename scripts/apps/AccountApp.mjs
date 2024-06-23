@@ -12,14 +12,30 @@ export default class AccountApp extends Application {
     async getData(options) {
         const data = super.getData(options);
 
+        data.llmUrl = game.settings.get("intelligent-npcs", "llmUrl");
         data.apiKey = game.settings.get("intelligent-npcs", "apiKey");
+        // example url https://intelligentnpcs.azurewebsites.net/api/AccountStatus?code=I_ZasRU0hlvW5Q8y7zzYl4ZLnc3S8F9roA6H0I-idQuuAzFuUd5Srw==&clientId=module
 
         try {
-            const response = await fetch("https://intelligentnpcs.azurewebsites.net/api/AccountStatus?code=I_ZasRU0hlvW5Q8y7zzYl4ZLnc3S8F9roA6H0I-idQuuAzFuUd5Srw==&clientId=module", {
-                headers: {
-                    "x-api-key": data.apiKey
-                }
+            const response = await fetch(data.llmUrl + ":generateContent?key=" + data.apiKey, {
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'contents': [
+                        {
+                            'parts': [
+                                {
+                                    'text': 'Say hello'
+                                }
+                            ]
+                        }
+                    ]
+                })
             });
+            // reference
+            // https://github.com/google-gemini/cookbook/blob/main/quickstarts/rest/Models_REST.ipynb
+            // VERY USEFUL https://www.scrapingbee.com/curl-converter/javascript-fetch/
 
             if (response.ok) {
                 data.status = await response.json();

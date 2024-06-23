@@ -1,9 +1,19 @@
 import NpcPageSheet from "../apps/NpcPageSheet.mjs";
 
 export async function init() {
+    game.settings.register("intelligent-npcs", "llmUrl", {
+        name: "Custom LLM API endpoint to use for chatbot features",
+        hint: "Defaults to Gemini",
+        scope: "world",
+        default: "https://generativelanguage.googleapis.com/v1/models/gemini-pro",
+        config: true,
+        type: String,
+        requiresReload: true,
+    });
+
     game.settings.register("intelligent-npcs", "apiKey", {
         name: "Intelligent NPCs API Key",
-        hint: "You can get an API key by being a Patreon supporter at https://www.patreon.com/ironmoose.",
+        hint: "You can get an API key for Gemini here https://aistudio.google.com/app/apikey",
         scope: "world",
         default: "",
         config: true,

@@ -1,11 +1,15 @@
 <form class="{{cssClass}}" autocomplete="off">
     <article class="account">
-        <h1 class="title">Intelligent NPCs Account</h1>
+        <h1 class="title">Custom Account</h1>
         <div class="text">
             <div class="form-group">
                 <label>API Key</label>
                 <div class="form-fields">
                     <p>{{apiKey}}</p>
+                </div>
+                <label>API URL</label>
+                <div class="form-fields">
+                    <p>{{llmUrl}}</p>
                 </div>
             </div>
             {{#if errorMessage}}
