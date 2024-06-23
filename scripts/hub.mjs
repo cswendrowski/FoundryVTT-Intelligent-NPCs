@@ -3,8 +3,9 @@ import {getConfig} from "./hooks/createChatMessage.mjs";
 export default class Hub {
     async initialize() {
         this.connection = new signalR.HubConnectionBuilder()
-            //.withUrl("https://localhost:7094/foundryhub", {withCredentials: false})
-            .withUrl("https://intelligentttrpgs.azurewebsites.net/foundryhub", {withCredentials: false})
+            .withUrl("http://169.254.123.32:30002/foundryhub", {withCredentials: false})
+            // .withUrl("https://localhost:7094/foundryhub", {withCredentials: false})
+            // .withUrl("https://intelligentttrpgs.azurewebsites.net/foundryhub", {withCredentials: false})
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();
