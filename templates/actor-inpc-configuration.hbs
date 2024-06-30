@@ -45,12 +45,12 @@
 
     <fieldset>
         <legend>Public</legend>
-        <p class="notes">These fields override any journal selected, and will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know</p>
+        <p class="notes">These fields override any journal selected, and will be read by other Intelligent NPCs, so don't include any info that others shouldn't generally know</p>
 
         <div class="form-group-stacked">
-            <label>Summary</label>
-            <textarea class="form-control" rows=2 name="summary" placeholder="{{actor.name}} is a generic person who is well known for existing." maxlength="500">{{config.summary}}</textarea>
-            <p class="notes">A quick summary of what others generally know about this person. Write in third person. Overrides the Journal details if set. Max length: 500 characters</p>
+            <label>What Everyone Knows</label>
+            <textarea class="form-control" rows="4" name="whatEveryoneKnows" placeholder="{{actor.name}} is a generic person who is well known for existing." maxlength="500">{{config.whatEveryoneKnows}}</textarea>
+            <p class="notes">A quick summary of what others generally know about this person. Write in third person. Max length: 500 characters</p>
         </div>
 
         <div class="form-group-stacked">

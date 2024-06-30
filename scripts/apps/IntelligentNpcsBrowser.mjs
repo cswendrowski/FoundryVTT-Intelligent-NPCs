@@ -232,6 +232,7 @@ export default class IntelligentNpcsBrowser extends Application {
                 "img": img,
                 "personality": npc.fields.personality,
                 "summary": npc.fields.summary,
+                "whatEveryoneKnows": npc.fields.whatEveryoneKnows,
                 "airtableId": npc.id,
             }
         });

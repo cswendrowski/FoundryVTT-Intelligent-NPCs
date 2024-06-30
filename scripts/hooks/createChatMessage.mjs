@@ -88,12 +88,14 @@ export async function getConfig(npc) {
         ...selectedPageConfig
     };
     if ( actorConfig.summary ) config.summary = actorConfig.summary;
+    if ( actorConfig.whatEveryoneKnows ) config.whatEveryoneKnows = actorConfig.whatEveryoneKnows;
     if ( actorConfig.appearance ) config.appearance = actorConfig.appearance;
     if ( actorConfig.messageHistory ) config.messageHistory = actorConfig.messageHistory;
     if ( actorConfig.memory ) config.memory = actorConfig.memory;
 
     if ( page.name !== npc.name ) {
         config.summary = config.summary.replace(new RegExp(page.name, "g"), npc.name);
+        config.whatEveryoneKnows = config.whatEveryoneKnows.replace(new RegExp(page.name, "g"), npc.name);
         config.appearance = config.appearance.replace(new RegExp(page.name, "g"), npc.name);
         config.background = config.background.replace(new RegExp(page.name, "g"), npc.name);
         config.personality = config.personality.replace(new RegExp(page.name, "g"), npc.name);
@@ -117,7 +119,7 @@ async function chatCompletion(npc, message, scene) {
     // If the speaker has a summary, load it
     const speakerToken = scene.tokens.get(message.speaker.token);
     const speakerConfig = await getConfig(speakerToken?.actor);
-    const speakerSummary = speakerConfig?.summary ?? "";
+    const speakerWhatEveryoneKnows = speakerConfig?.whatEveryoneKnows ?? "";
     const speakerAppearance = speakerConfig?.appearance ?? "";
 
     // Get the subarea context if it exists
@@ -129,7 +131,7 @@ async function chatCompletion(npc, message, scene) {
         "message": message.content,
         "tokenNames": allTokenNames,
         "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
-        "speakerSummary": speakerSummary,
+        "speakerSummary": speakerWhatEveryoneKnows,
         "speakerAppearance": speakerAppearance,
         "sceneContext": sceneContext + "\n\n" + subareaContext,
         "worldContext": worldContext,
@@ -320,7 +322,8 @@ export async function createChatMessage(message, options, userId) {
     // If the target is not an AI, return
     const aiNpcs = scene.tokens.filter(t => t.actor?.flags["intelligent-npcs"]?.enabled === true).map(t => t.actor._id);
     const speakerIsTarget = targetedNpc._id === message.speaker.actor;
-    if (!aiNpcs.includes(targetedNpc._id) || speakerIsTarget) return;
+    const hidden = targetedNpc?.token?.hidden || targetedToken?.document?.hidden;
+    if ( !aiNpcs.includes(targetedNpc._id) || speakerIsTarget || hidden ) return;
 
     // get the message history from the npc flags
     const messageHistory = targetedNpc.getFlag("intelligent-npcs", "messageHistory") || [];

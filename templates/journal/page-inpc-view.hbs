@@ -6,14 +6,23 @@
 
             <h2>Summary</h2>
             <p>{{config.summary}}</p>
-
-            <h2>Appearance</h2>
-            <p>{{config.appearance}}</p>
         </div>
     </div>
 
+    <hr>
+
+    <h1>Public Info</h1>
+
+    <h2>What Everyone Knows</h2>
+    <p>{{config.whatEveryoneKnows}}</p>
+
+    <h2>Appearance</h2>
+    <p>{{config.appearance}}</p>
+
     {{#if user.isGM}}
         <hr>
+
+        <h1>Private Info</h1>
 
         <h2>Background</h2>
         <p>{{config.background}}</p>

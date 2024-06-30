@@ -1,3 +1,7 @@
+#client-settings select[name="intelligent-npcs.model"] {
+  width: 100%;
+}
+
 .chat-message .message-header .message-sender {
   flex: 4;
   text-overflow: ellipsis;

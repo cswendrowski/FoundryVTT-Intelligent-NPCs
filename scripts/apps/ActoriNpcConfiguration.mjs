@@ -30,7 +30,8 @@ export default class ActoriNpcConfiguration extends FormApplication {
         const config = this.actor.flags["intelligent-npcs"] ?? {};
 
         if ( foundry.utils.isEmpty(config) ) {
-            config["summary"] = "You are a generic NPC named Bob.";
+            config["summary"] = "A generic NPC named Bob.";
+            config["whatEveryoneKnows"] = "You don't know anything about this person beyond what you can glean from their appearance.";
             config["appearance"] = "Farmer attire";
         }
 
@@ -59,8 +60,8 @@ export default class ActoriNpcConfiguration extends FormApplication {
         const selectedPageConfig = page?.flags["intelligent-npcs"] ?? {};
 
         const hasMessageHistory = config["messageHistory"] && config["messageHistory"].length > 0;
-        const hasDifferentMemory = config["memory"] && config["memory"].length > 0
-            && config["memory"] !== selectedPageConfig["memory"];
+        const hasDifferentMemory = config.memory?.length > 0
+            && config.memory !== selectedPageConfig.memory;
         const hasDifferentName = (this.actor && page) ? this.actor.name !== page.name : false;
 
         const canSwap = (pageId === "none") || !(hasMessageHistory || hasDifferentMemory || hasDifferentName);
@@ -238,6 +239,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
 
         // Clear the customizations
         await this.actor.setFlag("intelligent-npcs", "summary", "");
+        await this.actor.setFlag("intelligent-npcs", "whatEveryoneKnows", "");
         await this.actor.setFlag("intelligent-npcs", "appearance", "");
         await this.actor.setFlag("intelligent-npcs", "messageHistory", []);
         await this.actor.setFlag("intelligent-npcs", "memory", "");

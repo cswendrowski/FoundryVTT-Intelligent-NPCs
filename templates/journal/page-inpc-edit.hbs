@@ -4,26 +4,32 @@
         <h2><input type="text" name="name" value="{{journal.name}}"></h2>
     </div>
 
+    <div class="form-group-stacked" style="margin: 1rem;">
+        <label>Summary</label>
+        <textarea class="form-control" rows="4" name="summary" placeholder="{{journal.name}} is a generic NPC usable in any setting">{{config.summary}}</textarea>
+        <p class="notes">A quick summary of this NPC for human reference. Intelligent NPCs do not read this field.</p>
+    </div>
+
     <fieldset>
-        <legend>Public</legend>
-        <p class="notes">These fields will be read by Intelligent NPCs, so don't include any info that others shouldn't generally know. These fields should be written in third person.</p>
+        <legend>Public Info</legend>
+        <p class="notes">These fields will be read by other Intelligent NPCs, so don't include any info that others shouldn't generally know. These fields should be written in third person.</p>
 
         <div class="form-group-stacked">
-            <label>Summary</label>
-            <textarea class="form-control" rows="4" name="summary" placeholder="{{actor.name}} is a generic person who is well known for existing." maxlength="500">{{config.summary}}</textarea>
+            <label>What Everyone Knows</label>
+            <textarea class="form-control" rows="4" name="whatEveryoneKnows" placeholder="{{journal.name}} is a generic person who is well known for existing." maxlength="500">{{config.whatEveryoneKnows}}</textarea>
             <p class="notes">A quick summary of what others generally know about this person. Write in third person. Max length: 500 characters</p>
         </div>
 
         <div class="form-group-stacked">
             <label>Appearance</label>
-            <textarea class="form-control" rows="4" name="appearance" placeholder="{{actor.name}} wears standard street wear." maxlength="500">{{config.appearance}}</textarea>
+            <textarea class="form-control" rows="4" name="appearance" placeholder="{{journal.name}} wears standard street wear." maxlength="500">{{config.appearance}}</textarea>
             <p class="notes">What this character looks like to others. Write in third person. Max length: 500 characters</p>
         </div>
     </fieldset>
 
 
     <fieldset>
-        <legend>Personality</legend>
+        <legend>Private Info</legend>
         <p class="notes">The following fields should be written in first person.</p>
 
         <div class="form-group-stacked">
