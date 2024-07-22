@@ -331,7 +331,7 @@ export async function createChatMessage(message, options, userId) {
     // Add this message to the message history as a user message. If the message is a GM whisper, interpret it as a command
     let content = "";
     if ( message.type === CONST.CHAT_MESSAGE_TYPES.WHISPER && message.user.isGM ) {
-        content = `${message.content}`;
+        content = `Command: ${message.content}`;
     }
     else {
         content = `Speaker: ${message.speaker.alias ?? "Unknown"} Message:<p>${message.content}</p>`;

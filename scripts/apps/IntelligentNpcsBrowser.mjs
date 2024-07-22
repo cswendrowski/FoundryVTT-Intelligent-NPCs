@@ -221,7 +221,7 @@ export default class IntelligentNpcsBrowser extends Application {
         }
 
         await page.update({
-            "name": npc.fields.Name,
+            "name": npc.fields.name,
             "flags.core.sheetClass": "intelligent-npcs.NpcPageSheet",
             "flags.intelligent-npcs": {
                 "appearance": npc.fields.appearance,
