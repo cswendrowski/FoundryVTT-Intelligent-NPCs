@@ -6,6 +6,12 @@
 
             <h2>Summary</h2>
             <p>{{config.summary}}</p>
+
+            {{#if hasPlaylistLink}}
+                <h2>Linked Playlist</h2>
+                {{{playlistContentLink}}}
+            {{/if}}
+            </div>
         </div>
     </div>
 

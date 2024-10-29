@@ -2,6 +2,10 @@
   width: 100%;
 }
 
+.intelligent-npcs .playlist-none {
+  outline: dotted 2px #999;
+}
+
 .chat-message .message-header .message-sender {
   flex: 4;
   text-overflow: ellipsis;

@@ -10,20 +10,31 @@
         <p class="notes">A quick summary of this NPC for human reference. Intelligent NPCs do not read this field.</p>
     </div>
 
+    <div class="form-group playlist" style="margin: 1rem;" data-name="playlist">
+        <label>Linked Playlist</label>
+        {{#if hasPlaylistLink}}
+            {{{playlistContentLink}}}
+            <a class="playlist-remove" data-name="playlist" data-action="remove" style="flex: 0;margin-left: 0.25rem;"><i class="fa-solid fa-delete-left"></i></a>
+        {{else}}
+            <p class="playlist-none">Drag a playlist here to link.</p>
+        {{/if}}
+        <p class="notes">If a Playlist is linked, the iNPC will occasionally choose to play sound from it.</p>
+    </div>
+
     <fieldset>
         <legend>Public Info</legend>
         <p class="notes">These fields will be read by other Intelligent NPCs, so don't include any info that others shouldn't generally know. These fields should be written in third person.</p>
 
         <div class="form-group-stacked">
             <label>What Everyone Knows</label>
-            <textarea class="form-control" rows="4" name="whatEveryoneKnows" placeholder="{{journal.name}} is a generic person who is well known for existing." maxlength="500">{{config.whatEveryoneKnows}}</textarea>
-            <p class="notes">A quick summary of what others generally know about this person. Write in third person. Max length: 500 characters</p>
+            <textarea class="form-control" rows="4" name="whatEveryoneKnows" placeholder="{{journal.name}} is a generic person who is well known for existing." >{{config.whatEveryoneKnows}}</textarea>
+            <p class="notes">A quick summary of what others generally know about this person. Write in third person.</p>
         </div>
 
         <div class="form-group-stacked">
             <label>Appearance</label>
-            <textarea class="form-control" rows="4" name="appearance" placeholder="{{journal.name}} wears standard street wear." maxlength="500">{{config.appearance}}</textarea>
-            <p class="notes">What this character looks like to others. Write in third person. Max length: 500 characters</p>
+            <textarea class="form-control" rows="4" name="appearance" placeholder="{{journal.name}} wears standard street wear." >{{config.appearance}}</textarea>
+            <p class="notes">What this character looks like to others. Write in third person.</p>
         </div>
     </fieldset>
 
@@ -34,7 +45,7 @@
 
         <div class="form-group-stacked">
             <label>Background</label>
-            <textarea class="form-control" rows="8" name="background" placeholder="Background" maxlength="500">{{config.background}}</textarea>
+            <textarea class="form-control" rows="8" name="background" placeholder="Background" >{{config.background}}</textarea>
         </div>
 
         <div class="form-group-stacked">
