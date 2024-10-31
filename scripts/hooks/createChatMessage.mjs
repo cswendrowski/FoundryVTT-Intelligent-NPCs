@@ -110,7 +110,7 @@ export async function getConfig(npc) {
 
 /* -------------------------------------------- */
 
-async function chatCompletion(npc, message, scene) {
+async function chatCompletion(npc, targetedToken, message, scene) {
     const allTokenNames = scene.tokens.map(t => t.name);
     const sceneContext = scene.getFlag("intelligent-npcs", "sceneInfo") || "";
     const worldContext = game.world.flags["intelligent-npcs"]?.worldContext || "";
@@ -126,6 +126,41 @@ async function chatCompletion(npc, message, scene) {
     const subareaContext = getSubareaContext(scene, npc.token?._object);
     console.log(subareaContext);
 
+    let combatState = "";
+
+    function attachBar(bar) {
+        if ( !bar ) return;
+        const value = bar.value;
+        const max = bar.max;
+        const attribute = bar.attribute;
+
+        combatState += "\t" + attribute + ": " + value + "/" + max + "\n";
+    }
+
+    function attachBars(token) {
+        const bar1 = token.getBarAttribute("bar1");
+        const bar2 = token.getBarAttribute("bar2");
+        attachBar(bar1);
+        attachBar(bar2);
+    }
+
+    // Attach info about self
+    combatState += "Your Combat State: \n";
+    attachBars(npc.token ?? npc.prototypeToken);
+
+    // Discover all SFX this AI can use
+    const playlistUuid = config.playlist;
+    const sfxPlaylist = await fromUuid(playlistUuid);
+
+    // Map them to UUID - name pairs
+    const sfxMap = [];
+    if (sfxPlaylist) {
+        sfxPlaylist.sounds.forEach(sound => {
+            sfxMap.push(`"${sound.name}"`);
+        });
+    }
+    console.log(sfxMap);
+
     let body = {
         "name": npc.name,
         "message": message.content,
@@ -135,6 +170,9 @@ async function chatCompletion(npc, message, scene) {
         "speakerAppearance": speakerAppearance,
         "sceneContext": sceneContext + "\n\n" + subareaContext,
         "worldContext": worldContext,
+        "combatState": combatState,
+        "sfx": sfxMap,
+        "flag": "ai",
         ...config
     };
     const defaultModel = game.settings.get("intelligent-npcs", "model");
@@ -244,7 +282,7 @@ function manageMemory(npc, messageHistory) {
 
 /* -------------------------------------------- */
 
-export async function createAiResponse(targetedNpc, message, messageHistory) {
+export async function createAiResponse(targetedNpc, targetedToken, message, messageHistory) {
     // Create a chat message to indicate that processing is happening
     const thinkingMessage = await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
@@ -257,7 +295,7 @@ export async function createAiResponse(targetedNpc, message, messageHistory) {
         }
     });
     try {
-        await respondAsAI(targetedNpc, message, messageHistory, thinkingMessage);
+        await respondAsAI(targetedNpc, targetedToken, message, messageHistory, thinkingMessage);
     } catch (err) {
         console.error(err);
         thinkingMessage.delete();
@@ -296,7 +334,7 @@ export async function createChatMessage(message, options, userId) {
     if ( message.content.includes("Processing failed.") ) return;
 
     // If the message is OOC or a Roll, return
-    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC || message.type === CONST.CHAT_MESSAGE_TYPES.ROLL ) return;
+    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC || message.type === CONST.CHAT_MESSAGE_TYPES.ROLL || message.rolls?.length > 0 ) return;
 
     // Get the user who created the message
     const user = message.user;
@@ -340,7 +378,7 @@ export async function createChatMessage(message, options, userId) {
         "role": "user",
         "content": content
     });
-    await createAiResponse(targetedNpc, message, messageHistory);
+    await createAiResponse(targetedNpc, targetedToken, message, messageHistory);
 }
 
 /* -------------------------------------------- */
@@ -360,7 +398,8 @@ function parseAsJson(messageContent) {
         response: parsedMessageContent.content,
         mood: parsedMessageContent.mood,
         target: parsedMessageContent.target,
-        endConversation: parsedMessageContent.endConversation
+        endConversation: parsedMessageContent.endConversation,
+        sfx: parsedMessageContent.sfx
     }
 
     // Parse trailing , from mood and response
@@ -414,7 +453,7 @@ function delay(ms) {
 
 /* -------------------------------------------- */
 
-async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage) {
+async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, thinkingMessage) {
     const scene = game.scenes.get(message.speaker.scene ?? canvas.scene._id);
 
     // If there is a "stop" command, end the conversation
@@ -430,7 +469,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
         });
     }, 5000);
 
-    const messageContent = await chatCompletion(targetedNpc, message, scene);
+    const messageContent = await chatCompletion(targetedNpc, targetedToken, message, scene);
 
     // Clear the timer
     clearTimeout(timer);
@@ -440,12 +479,18 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     let mood = "";
     let target = null;
     let endConversation = false;
+    let sfx = "";
     try {
+        console.dir(messageContent);
         const parsedMessageContent = parseAsJson(messageContent);
         //const parsedMessageContent = parseStructuredText(messageContent);
         //console.dir(parsedMessageContent);
         content = parsedMessageContent.response;
         mood = parsedMessageContent.mood;
+        sfx = parsedMessageContent.sfx;
+
+        // Clean the sfx name of extra quotes
+        sfx = sfx.replace(/"/g, "");
 
         if (parsedMessageContent.target) {
             target = scene.tokens.find(t => t.name === parsedMessageContent.target);
@@ -460,7 +505,7 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
     // Add this message to the message history as an assistant message
     messageHistory.push({
         "role": "assistant",
-        "content": `[RESPONSE]: ${content}\n[MOOD]: ${mood}\n[END_CONVERSATION]: ${endConversation}\n[TARGET]: ${target?.name ?? ""}`
+        "content": `[RESPONSE]: ${content}\n[MOOD]: ${mood}\n[END_CONVERSATION]: ${endConversation}\n[TARGET]: ${target?.name ?? ""}\n[SFX]: ${sfx}`
     });
 
     manageMemory(targetedNpc, messageHistory);
@@ -485,6 +530,20 @@ async function respondAsAI(targetedNpc, message, messageHistory, thinkingMessage
         backAndForthLength = 0;
     }
     const maxBackAndForthLength = game.settings.get("intelligent-npcs", "maxBackAndForthLength");
+
+    // If there is SFX attached, play it
+    if ( sfx ) {
+        const config = await getConfig(targetedNpc);
+        const attachedPlaylistUuid = config.playlist;
+        console.log("Playlist: ", attachedPlaylistUuid);
+        const playlist = await fromUuid(attachedPlaylistUuid)
+        if ( playlist ) {
+            const sound = playlist.sounds.getName(sfx)
+            if (sound) {
+                playlist.playSound(sound);
+            }
+        }
+    }
 
     thinkingMessage.delete();
     try {
