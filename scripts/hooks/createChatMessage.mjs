@@ -490,7 +490,9 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
         sfx = parsedMessageContent.sfx;
 
         // Clean the sfx name of extra quotes
-        sfx = sfx.replace(/"/g, "");
+        if ( sfx ) {
+            sfx = sfx.replace(/"/g, "");
+        }
 
         if (parsedMessageContent.target) {
             target = scene.tokens.find(t => t.name === parsedMessageContent.target);
