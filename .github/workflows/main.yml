@@ -32,6 +32,9 @@
 #
 name: Create Module Files For GitHub Release
 
+permissions:
+  contents: write
+
 
 env:
   # The URL used for the module's "Project URL" link on FoundryVTT's website.
