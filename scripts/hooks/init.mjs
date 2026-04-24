@@ -1,4 +1,5 @@
 import NpcPageSheet from "../apps/NpcPageSheet.mjs";
+import MonsterPageSheet from "../apps/MonsterPageSheet.mjs";
 
 export async function init() {
     game.settings.register("intelligent-npcs", "apiKey", {
@@ -13,15 +14,14 @@ export async function init() {
 
     game.settings.register("intelligent-npcs", "model", {
         name: "Intelligent NPCs Model",
-        hint: "The model to use for generating NPC chat messages. If you select a model that you don't have access to, it will default to V1.",
+        hint: "Fast is the default — great quality at 1 message per chat. Quality uses the most capable model for setpiece NPCs at 5 messages per chat.",
         scope: "world",
-        default: "hybrid",
+        default: "fast",
         config: true,
         type: String,
         choices: {
-            "v1": "Fast - Faster and Cheaper - Costs 1 message per chat message. Great for your general run-of-the mill mooks and mobs.",
-            "hybrid": "Hybrid - The default model. Costs 1 message per chat message. Not as fast as the Fast model, but more capable. Great for your Shopkeeps, Tavern Keepers, etc.",
-            "v2": "Enhanced - More Capable and Nuanced, but costs 10 messages per chat message. Great for your setpiece bosses and NPCS your party will interact with often.",
+            "fast": "Fast — Best price-per-quality. Costs 1 message per chat. Great default for shopkeeps, guards, tavernfolk.",
+            "quality": "Quality — Highest quality model. Costs 5 messages per chat. Great for centerpiece NPCs and party-recurring characters."
         },
         requiresReload: true,
     });
@@ -101,6 +101,13 @@ export async function init() {
         types: ["text"],
         label() {
             return "Intelligent NPC Configuration";
+        }
+    });
+
+    DocumentSheetConfig.registerSheet(JournalEntryPage, "intelligent-npcs", MonsterPageSheet, {
+        types: ["text"],
+        label() {
+            return "Intelligent Monster Configuration";
         }
     });
 }
