@@ -73,3 +73,57 @@
 }
 
 /*# sourceMappingURL=intelligent-npcs.css.map */
+
+/* === Side-effects render: reasoning collapsible + GM resolution card === */
+.inpc-reasoning {
+  margin-top: 0.5em;
+  padding: 0.4em 0.6em;
+  border-left: 3px solid #888;
+  background: rgba(128, 128, 128, 0.08);
+  font-size: 0.9em;
+  font-style: italic;
+}
+.inpc-reasoning summary {
+  cursor: pointer;
+  color: #555;
+  font-weight: bold;
+  font-style: normal;
+}
+.inpc-reasoning p {
+  margin: 0.4em 0 0;
+}
+
+.inpc-gm-resolution {
+  margin-top: 0.5em;
+  padding: 0.5em 0.6em;
+  border: 1px solid #b8860b;
+  background: rgba(255, 215, 0, 0.08);
+  border-radius: 4px;
+}
+.inpc-gm-resolution .inpc-gm-resolution-header {
+  font-weight: bold;
+  color: #8b6914;
+  margin-bottom: 0.3em;
+}
+.inpc-gm-resolution .inpc-gm-resolution-ask {
+  margin-bottom: 0.5em;
+  font-style: italic;
+}
+.inpc-gm-resolution .inpc-gm-resolution-buttons {
+  display: flex;
+  gap: 0.3em;
+}
+.inpc-gm-resolution .inpc-gm-resolution-buttons button {
+  flex: 1;
+  font-size: 0.85em;
+  padding: 0.2em 0.4em;
+}
+
+.inpc-gm-resolution-resolved {
+  margin-top: 0.5em;
+  padding: 0.3em 0.5em;
+  background: rgba(0, 128, 0, 0.08);
+  border-left: 3px solid #2a7d2a;
+  font-size: 0.85em;
+  color: #2a5d2a;
+}

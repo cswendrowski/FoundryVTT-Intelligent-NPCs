@@ -92,6 +92,7 @@ export async function getConfig(npc) {
     if ( actorConfig.appearance ) config.appearance = actorConfig.appearance;
     if ( actorConfig.messageHistory ) config.messageHistory = actorConfig.messageHistory;
     if ( actorConfig.memory ) config.memory = actorConfig.memory;
+    if ( actorConfig.goals ) config.goals = actorConfig.goals;
 
     if ( page.name !== npc.name ) {
         config.summary = config.summary.replace(new RegExp(page.name, "g"), npc.name);
@@ -396,12 +397,22 @@ function parseAsJson(messageContent) {
     //     return (seen % 2) ? "<i>" : "</i>";
     // });
 
+    // sfx is an array on the wire as of the side-effects rework. Older backends
+    // emitted a string; tolerate both for one release.
+    let sfx = parsedMessageContent.sfx;
+    if ( typeof sfx === "string" ) sfx = sfx ? [sfx] : [];
+    if ( !Array.isArray(sfx) ) sfx = [];
+
     let responseData = {
         response: parsedMessageContent.content,
         mood: parsedMessageContent.mood,
         target: parsedMessageContent.target,
         endConversation: parsedMessageContent.endConversation,
-        sfx: parsedMessageContent.sfx
+        sfx,
+        reasoning: parsedMessageContent.reasoning ?? "",
+        gmResolutionRequest: parsedMessageContent.gmResolutionRequest ?? null,
+        memoryAppend: parsedMessageContent.memoryAppend ?? null,
+        goals: parsedMessageContent.goals ?? null
     }
 
     // Parse trailing , from mood and response
@@ -481,7 +492,11 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
     let mood = "";
     let target = null;
     let endConversation = false;
-    let sfx = "";
+    let sfx = [];
+    let reasoning = "";
+    let gmResolutionRequest = null;
+    let memoryAppend = null;
+    let goalsUpdate = null;
     try {
         console.dir(messageContent);
         const parsedMessageContent = parseAsJson(messageContent);
@@ -489,12 +504,11 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
         //console.dir(parsedMessageContent);
         content = parsedMessageContent.response;
         mood = parsedMessageContent.mood;
-        sfx = parsedMessageContent.sfx;
-
-        // Clean the sfx name of extra quotes
-        if ( sfx ) {
-            sfx = sfx.replace(/"/g, "");
-        }
+        sfx = (parsedMessageContent.sfx ?? []).map(s => (s ?? "").replace(/"/g, "").trim()).filter(s => s.length > 0);
+        reasoning = parsedMessageContent.reasoning ?? "";
+        gmResolutionRequest = parsedMessageContent.gmResolutionRequest ?? null;
+        memoryAppend = parsedMessageContent.memoryAppend ?? null;
+        goalsUpdate = parsedMessageContent.goals ?? null;
 
         if (parsedMessageContent.target) {
             target = scene.tokens.find(t => t.name === parsedMessageContent.target);
@@ -506,10 +520,35 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
         content = messageContent;
     }
 
+    // Apply self-declared side effects to the actor's flags.
+    // memory: append a single new line to the runtime memory (curated by the
+    // existing memory-compact feature). goals: full replacement when the NPC
+    // declares a priority shift.
+    if ( memoryAppend ) {
+        const existingMemory = targetedNpc.getFlag("intelligent-npcs", "memory") ?? "";
+        const newMemory = existingMemory.length > 0
+            ? `${existingMemory}\n${memoryAppend}`
+            : memoryAppend;
+        await targetedNpc.setFlag("intelligent-npcs", "memory", newMemory);
+    }
+    if ( goalsUpdate ) {
+        await targetedNpc.setFlag("intelligent-npcs", "goals", goalsUpdate);
+    }
+
     // Add this message to the message history as an assistant message
     messageHistory.push({
         "role": "assistant",
-        "content": `[RESPONSE]: ${content}\n[MOOD]: ${mood}\n[END_CONVERSATION]: ${endConversation}\n[TARGET]: ${target?.name ?? ""}\n[SFX]: ${sfx}`
+        "content": [
+            reasoning ? `[REASONING]: ${reasoning}` : null,
+            `[RESPONSE]: ${content}`,
+            `[MOOD]: ${mood}`,
+            `[END_CONVERSATION]: ${endConversation}`,
+            `[TARGET]: ${target?.name ?? ""}`,
+            sfx.length ? `[SFX]: ${sfx.join(", ")}` : null,
+            gmResolutionRequest ? `[GM_RESOLUTION]: ${gmResolutionRequest}` : null,
+            memoryAppend ? `[MEMORY_APPEND]: ${memoryAppend}` : null,
+            goalsUpdate ? `[GOALS]: ${goalsUpdate}` : null,
+        ].filter(line => line !== null).join("\n")
     });
 
     manageMemory(targetedNpc, messageHistory);
@@ -535,16 +574,17 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
     }
     const maxBackAndForthLength = game.settings.get("intelligent-npcs", "maxBackAndForthLength");
 
-    // If there is SFX attached, play it
-    if ( sfx ) {
+    // If there is SFX attached, play each one. sfx is an array as of the
+    // side-effects rework — multiple sounds in one beat (door-slam + gasp) play in order.
+    if ( sfx && sfx.length ) {
         const config = await getConfig(targetedNpc);
         const attachedPlaylistUuid = config.playlist;
         console.log("Playlist: ", attachedPlaylistUuid);
-        const playlist = await fromUuid(attachedPlaylistUuid)
+        const playlist = await fromUuid(attachedPlaylistUuid);
         if ( playlist ) {
-            const sound = playlist.sounds.getName(sfx)
-            if (sound) {
-                playlist.playSound(sound);
+            for ( const sfxName of sfx ) {
+                const sound = playlist.sounds.getName(sfxName);
+                if ( sound ) playlist.playSound(sound);
             }
         }
     }
@@ -580,7 +620,10 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
                 targetName: target?.name,
                 endConversation: backAndForthLength > maxBackAndForthLength ? true : endConversation,
                 backAndForthLength: backAndForthLength,
-                mood: mood
+                mood: mood,
+                reasoning: reasoning || null,
+                gmResolutionRequest: gmResolutionRequest,
+                npcId: targetedNpc.id
             }
         }
     });

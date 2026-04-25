@@ -66,8 +66,14 @@
 
         <div class="form-group-stacked">
             <label>Memory</label>
-            <p class="notes">Warning: It's generally best to let the NPC manage it's own memory</p>
+            <p class="notes">Warning: It's generally best to let the NPC manage its own memory</p>
             <textarea class="form-control" rows="5" name="memory" placeholder="Memory">{{config.memory}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Goals</label>
+            <p class="notes">The NPC's current priorities. The NPC may rewrite this when its goals shift; you can also edit it directly.</p>
+            <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
         </div>
 
         <div class="form-group-stacked">
