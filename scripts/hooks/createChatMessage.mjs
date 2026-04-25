@@ -165,7 +165,7 @@ async function chatCompletion(npc, targetedToken, message, scene) {
         "name": npc.name,
         "message": message.content,
         "tokenNames": allTokenNames,
-        "speaker": message.speaker.alias ?? (message.user.isGM ? "GM" : "Unknown"),
+        "speaker": message.speaker.alias ?? ((message.author ?? message.user)?.isGM ? "GM" : "Unknown"),
         "speakerSummary": speakerWhatEveryoneKnows,
         "speakerAppearance": speakerAppearance,
         "sceneContext": sceneContext + "\n\n" + subareaContext,
@@ -185,7 +185,7 @@ async function chatCompletion(npc, targetedToken, message, scene) {
     }
 
     if ( game.settings.get("intelligent-npcs", "sameSceneContext") && canvas?.scene ) {
-        const sameSceneMessages = game.messages.filter(m => m.type === CONST.CHAT_MESSAGE_TYPES.IC && m.speaker &&
+        const sameSceneMessages = game.messages.filter(m => (m.style ?? m.type) === (CONST.CHAT_MESSAGE_STYLES?.IC ?? 2) && m.speaker &&
             m.speaker.scene == canvas.scene.id && m.speaker.alias !== npc.name);
         // Take only the last 10 messages
         const sameSceneMessagesSlice = sameSceneMessages.slice(-10);
@@ -287,7 +287,7 @@ export async function createAiResponse(targetedNpc, targetedToken, message, mess
     const thinkingMessage = await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
         content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking...`,
-        type: CONST.CHAT_MESSAGE_TYPES.IC,
+        style: CONST.CHAT_MESSAGE_STYLES?.IC ?? CONST.CHAT_MESSAGE_TYPES.IC,
         flags: {
             vino: {
                 skip: true
@@ -310,7 +310,7 @@ export async function createAiResponse(targetedNpc, targetedToken, message, mess
             }
             await ChatMessage.create({
                 content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details. <button class="inpc-retry-message"><i class="fa-solid fa-arrow-right-from-bracket"></i> Retry</button>`,
-                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                style: CONST.CHAT_MESSAGE_STYLES?.OOC ?? CONST.CHAT_MESSAGE_TYPES.OOC,
                 whisper: game.users.filter(u => u.isGM).map(u => u._id),
                 flags: {
                     "intelligent-npcs": flagData
@@ -334,10 +334,12 @@ export async function createChatMessage(message, options, userId) {
     if ( message.content.includes("Processing failed.") ) return;
 
     // If the message is OOC or a Roll, return
-    if ( message.type === CONST.CHAT_MESSAGE_TYPES.OOC || message.type === CONST.CHAT_MESSAGE_TYPES.ROLL || message.rolls?.length > 0 ) return;
+    const messageStyle = message.style ?? message.type;
+    const STYLES = CONST.CHAT_MESSAGE_STYLES ?? CONST.CHAT_MESSAGE_TYPES ?? {};
+    if ( messageStyle === STYLES.OOC || messageStyle === STYLES.ROLL || message.rolls?.length > 0 ) return;
 
-    // Get the user who created the message
-    const user = message.user;
+    // Get the user who created the message (v13+ renamed `user` → `author`)
+    const user = message.author ?? message.user;
 
     // If the message flags have a target, prefer that
     let targetedToken = null;
@@ -368,7 +370,7 @@ export async function createChatMessage(message, options, userId) {
 
     // Add this message to the message history as a user message. If the message is a GM whisper, interpret it as a command
     let content = "";
-    if ( message.type === CONST.CHAT_MESSAGE_TYPES.WHISPER && message.user.isGM ) {
+    if ( message.whisper?.length > 0 && user.isGM ) {
         content = `Command: ${message.content}`;
     }
     else {
@@ -567,7 +569,7 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: targetedNpc}),
         content: `<div>${content}</div>`,
-        type: CONST.CHAT_MESSAGE_TYPES.IC,
+        style: CONST.CHAT_MESSAGE_STYLES?.IC ?? CONST.CHAT_MESSAGE_TYPES.IC,
         flags: {
             vino: {
                 mood: mood,

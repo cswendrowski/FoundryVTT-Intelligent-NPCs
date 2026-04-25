@@ -1,9 +1,10 @@
 import {createAiResponse} from "./createChatMessage.mjs";
 
 export async function renderChatMessage(message, html, data) {
+    const $html = html instanceof HTMLElement ? $(html) : html;
 
     // Attach retry handler
-    html.find(".inpc-retry-message").on("click", async (event) => {
+    $html.find(".inpc-retry-message").on("click", async (event) => {
         // Get the flag data
         const flagData = message.flags["intelligent-npcs"];
         if ( !flagData ) return;
@@ -19,7 +20,7 @@ export async function renderChatMessage(message, html, data) {
 
     // find .message-sender and append the target's name
     const moodPosition = game.settings.get("intelligent-npcs", "moodPosition");
-    const sender = html.find(".message-sender");
+    const sender = $html.find(".message-sender");
     let toAppendToName = "";
     let toPrependToContent = "";
 
@@ -40,6 +41,6 @@ export async function renderChatMessage(message, html, data) {
     }
 
     if ( moodPosition === "below" ) {
-        html.find(".message-content").prepend(`<b>${toPrependToContent}</b>`);
+        $html.find(".message-content").prepend(`<b>${toPrependToContent}</b>`);
     }
 }

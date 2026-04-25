@@ -2,6 +2,25 @@ import NpcPageSheet from "../apps/NpcPageSheet.mjs";
 import MonsterPageSheet from "../apps/MonsterPageSheet.mjs";
 
 export async function init() {
+    // v13+ renamed CHAT_MESSAGE_TYPES → CHAT_MESSAGE_STYLES and froze CONST. Stash a
+    // global alias so legacy `CONST.CHAT_MESSAGE_TYPES.X` lookups in this module still
+    // resolve. (CONST itself can no longer be extended.)
+    if ( !globalThis.CHAT_MESSAGE_TYPES_COMPAT ) {
+        globalThis.CHAT_MESSAGE_TYPES_COMPAT = CONST.CHAT_MESSAGE_TYPES
+            ?? { ...(CONST.CHAT_MESSAGE_STYLES ?? {}), ROLL: 5, WHISPER: 4 };
+    }
+
+    // v13+ removed the legacy {{#select}} block helper. Re-register a compatible
+    // shim so existing templates keep rendering.
+    if ( typeof Handlebars !== "undefined" && !Handlebars.helpers.select ) {
+        Handlebars.registerHelper("select", function(selected, options) {
+            const escapedValue = RegExp.escape(Handlebars.escapeExpression(selected));
+            const rgx = new RegExp(' value=[\"\\\']' + escapedValue + '[\"\\\']');
+            const html = options.fn(this);
+            return html.replace(rgx, "$& selected");
+        });
+    }
+
     game.settings.register("intelligent-npcs", "apiKey", {
         name: "Intelligent NPCs API Key",
         hint: "You can get an API key by being a Patreon supporter at https://www.patreon.com/ironmoose.",

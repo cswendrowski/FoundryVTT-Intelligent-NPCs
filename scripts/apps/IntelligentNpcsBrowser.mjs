@@ -1,6 +1,6 @@
 export default class IntelligentNpcsBrowser extends Application {
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "intelligent-npcs-browser",
             template: 'modules/intelligent-npcs/templates/browser.hbs',
             classes: ["intelligent-npcs", "intelligent-npcs-browser"],

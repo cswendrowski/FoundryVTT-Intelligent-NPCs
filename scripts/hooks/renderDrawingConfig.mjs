@@ -1,8 +1,10 @@
 export function renderDrawingConfig(app, html, context) {
-    const current = context.object.flags["intelligent-npcs"]?.drawingContext ?? "";
+    const $html = html instanceof HTMLElement ? $(html) : html;
+    const current = context.object?.flags?.["intelligent-npcs"]?.drawingContext
+        ?? context.document?.flags?.["intelligent-npcs"]?.drawingContext ?? "";
 
     // Find the text data-tab
-    const textTab = html.find("[data-tab='text']");
+    const textTab = $html.find("[data-tab='text']");
 
     // Find the last form-group
     const lastGroup = textTab.find(".form-group").last();

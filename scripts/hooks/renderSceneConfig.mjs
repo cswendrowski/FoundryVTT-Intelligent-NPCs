@@ -1,9 +1,10 @@
 export function renderSceneConfig(app, html, context) {
+    const $html = html instanceof HTMLElement ? $(html) : html;
 
     const current = context.document.flags["intelligent-npcs"]?.sceneInfo;
 
     // Find the ambience data-tab
-    const ambienceTab = html.find("[data-tab='ambience']");
+    const ambienceTab = $html.find("[data-tab='ambience']");
 
     // Find the first hr
     const hr = ambienceTab.find("hr").first();

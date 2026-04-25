@@ -1,6 +1,6 @@
 import {init} from "./hooks/init.mjs";
 import {ready} from "./hooks/ready.mjs";
-import {getActorHeaderButtons} from "./hooks/getHeaderButtons.mjs";
+import {getActorHeaderButtons, getActorSheetV2HeaderControls} from "./hooks/getHeaderButtons.mjs";
 import {createChatMessage} from "./hooks/createChatMessage.mjs";
 import {renderChatMessage} from "./hooks/renderChatMessage.mjs";
 import {renderSceneConfig} from "./hooks/renderSceneConfig.mjs";
@@ -14,8 +14,9 @@ import {renderDrawingConfig} from "./hooks/renderDrawingConfig.mjs";
 Hooks.once("init", init);
 Hooks.once("ready", ready);
 Hooks.on("getActorSheetHeaderButtons", getActorHeaderButtons);
+Hooks.on("getHeaderControlsActorSheetV2", getActorSheetV2HeaderControls);
 Hooks.on("createChatMessage", createChatMessage);
-Hooks.on("renderChatMessage", renderChatMessage);
+Hooks.on("renderChatMessageHTML", renderChatMessage);
 Hooks.on("renderSceneConfig", renderSceneConfig);
 Hooks.on("renderWorldConfig", renderWorldConfig);
 Hooks.on("renderSettings", renderSettings);

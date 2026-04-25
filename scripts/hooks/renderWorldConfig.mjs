@@ -2,7 +2,8 @@ export function renderWorldConfig(app, html, context) {
 
     const current = context.world.flags["intelligent-npcs"]?.worldContext ?? "";
 
-    const editor = html.find(".editor");
+    const $html = html instanceof HTMLElement ? $(html) : html;
+    const editor = $html.find(".editor");
 
     // Insert a new form group before the hr
     editor.after(`

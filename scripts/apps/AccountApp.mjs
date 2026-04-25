@@ -1,6 +1,6 @@
 export default class AccountApp extends Application {
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "intelligent-npcs-account-form",
             template: 'modules/intelligent-npcs/templates/account-app.hbs',
             classes: ["intelligent-npcs", "intelligent-npcs-account"],

@@ -50,7 +50,7 @@ async function createAiResponse(npc, combat, messageHistory, defeated=false) {
     const thinkingMessage = await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: npc}),
         content: `<i class="fa-duotone fa-thought-bubble fa-beat-fade"></i> Thinking...`,
-        type: CONST.CHAT_MESSAGE_TYPES.IC,
+        style: CONST.CHAT_MESSAGE_STYLES?.IC ?? CONST.CHAT_MESSAGE_TYPES.IC,
     });
     try {
         await respondAsAI(npc, combat, messageHistory, thinkingMessage, defeated);
@@ -67,7 +67,7 @@ async function createAiResponse(npc, combat, messageHistory, defeated=false) {
             }
             await ChatMessage.create({
                 content: `<i class="fa-solid fa-cloud-exclamation"></i> Processing failed. Check console for details.`,
-                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                style: CONST.CHAT_MESSAGE_STYLES?.OOC ?? CONST.CHAT_MESSAGE_TYPES.OOC,
                 whisper: game.users.filter(u => u.isGM).map(u => u._id),
                 flags: {
                     "intelligent-npcs": flagData
@@ -118,7 +118,7 @@ async function respondAsAI(npc, combat, messageHistory, thinkingMessage, defeate
     return ChatMessage.create({
         speaker: ChatMessage.getSpeaker({actor: npc}),
         content: `<div>${content}</div>`,
-        type: CONST.CHAT_MESSAGE_TYPES.IC,
+        style: CONST.CHAT_MESSAGE_STYLES?.IC ?? CONST.CHAT_MESSAGE_TYPES.IC,
         flags: {
             vino: {
                 mood: mood

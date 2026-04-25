@@ -31,9 +31,29 @@ The Foundry module sends `x-api-key: <ironmoose-XXXX>`. `ApiKeys.AuthenticateUse
 The backend returns a single string containing `[RESPONSE]: ...`, `[MOOD]: ...`, `[END_CONVERSATION]: ...`, `[TARGET]: ...`, `[SFX]: ...` markers, parsed server-side (see regexes near the top of `V1Completion` in `ChatCompletion.cs`) and returned to the module as an `AiResponse` JSON object. The `sfx` field is matched against the allow-list the module sent in `body.sfx` (sound names from the configured Foundry Playlist). The `target` field is matched against `body.tokenNames`. Model tier mapping lives in `ChatCompletion.V1Completion`'s `NormalizeTier` helper: `fast` → Gemini Flash-Lite (`gemini-2.5-flash-lite`), `quality` → Claude Haiku 4.5 (`claude-haiku-4-5-20251001`). Legacy aliases: `v1`/`hybrid` → Fast, `v2` → Quality. The `experiment` string is a free-form backend toggle preserved for future experiments; no values do anything today. Combat banter and monster completions still run on OpenAI — follow-up Plan 3.5 will migrate them.
 
 ### Local dev against the backend
-1. Run the Functions app from Visual Studio/`func start` — it binds to `http://localhost:7245`.
-2. Run the Website (SignalR hub) — it binds to `https://localhost:7094`.
-3. Flip `DEBUG = true` at the top of `scripts/hooks/createChatMessage.mjs` **and** confirm `scripts/hub.mjs` is using its `localhost:7094/foundryhub` URL (the commented block at the top). Both toggles must agree — one pointing local and the other pointing prod will half-work and look like an auth bug.
+
+#### Running the Functions app
+The backend was migrated from .NET 6 in-proc to **.NET 8 in-proc** (Functions Core Tools v4 dropped net6 support in mid-2024). Prereqs:
+- .NET 8 SDK (or newer with `rollForward` in `global.json`).
+- Azure Functions Core Tools v4 — installable via `npm i -g azure-functions-core-tools@4`. The `func.exe` lands at `C:\Users\<you>\AppData\Roaming\npm\node_modules\azure-functions-core-tools\bin\func.exe` (npm's PATH shim usually wires it as `func`).
+- `FUNCTIONS_INPROC_NET8_ENABLED=1` — already in `local.settings.json`. Without it the host refuses to load on net8.
+- `local.settings.json` populated with `OPENAI_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`. **The OpenAI key is required even for non-OpenAI tiers** because `Startup.cs` registers the OpenAI client unconditionally at DI time and throws if it's null. Use a real key or any non-empty placeholder if you only need to exercise Anthropic/Gemini paths.
+
+Start it from `F:\Programming\Git\IntelligentNpcs\IntelligentNpcs\` with `func start --port 7245`. Successful startup prints all 19 endpoints and ends with `Host lock lease acquired`. Common failure modes:
+- "The application 'build' does not exist" → SDK pinned in `global.json` is missing. Update `global.json` to an installed major or add `"rollForward": "latestMajor"`.
+- "Could not load file or assembly 'System.Text.Json, Version=8.0.0.0'" → a transitive dep (Anthropic.SDK / OpenAI 2.x) pulled a newer S.T.Json than the host preserves. Add a direct `<PackageReference Include="System.Text.Json" Version="8.0.5" />` and a `<FunctionsPreservedDependencies Include="System.Text.Json.dll" />` to the csproj (already done in this repo).
+- "No job functions found" — host loaded but the SDK source generator didn't run. Almost always means you ran `func start --no-build` against a stale `bin/`. Rebuild first.
+- "Could not find user for ironmoose-XXXX" / 404 from ChatCompletion — the local Azurite `users` table is empty by default. Seed a row with `PartitionKey="user"`, `RowKey="ironmoose-..."`, `Active=true`, and `MaxMonthlyRequests` high enough to test (e.g. 1000). Use Azure Storage Explorer or `az storage entity insert --table-name users --connection-string "UseDevelopmentStorage=true"`. The Foundry module sends the api key it has stored in world settings, so the seeded RowKey must match that exact string.
+
+#### Wiring the Foundry module to local
+1. Confirm the Functions app is listening (`curl http://localhost:7245/api/AccountStatus` returns 500 — endpoint exists, missing auth header is expected).
+2. Run the Website (SignalR hub) — it binds to `https://localhost:7094`. Only needed for transcription/target-sync features; skip if you're only iterating on chat.
+3. Flip `DEBUG = true` at the top of `scripts/hooks/createChatMessage.mjs` **and** confirm `scripts/hub.mjs` is using its `localhost:7094/foundryhub` URL (the commented block at the top). Both toggles must agree — one pointing local and the other pointing prod will half-work and look like an auth bug. Reload the Foundry world (F5) after flipping.
+
+#### Debugging tips
+- The empty-response code path used to be silent: when the model output skipped the `[RESPONSE]:` markers the regex match returned `""` and the client got a blank chat bubble with HTTP 200. `V1Completion` now logs the raw model output, retries up to 2x, and falls back to the raw content as the response. To inspect what the model is actually producing, run the app with `func start` and grep the console for `Response had no [RESPONSE] marker`.
+- The host streams logs to stdout. When running under `Start-Process` with redirected output, the file isn't flushed promptly — use `--verbose` and watch the console directly, or `Get-Content -Wait` on the redirected file.
+- Foundry-side debugging: with `DEBUG = true`, every chat completion is a `POST` to `localhost:7245/api/ChatCompletion` visible in the browser DevTools Network tab. The request body is the entire prompt context (good for diffing what changed across turns); the response is the parsed `AiResponse` JSON.
 
 ### Evaluation harness
 `IntelligentNpcs.Eval/` is a console tool that replays representative fixtures against the real prompt-building code and scores output via Claude-as-judge. Run it before and after any prompt or model change; `eval-runs/baseline-*/` in the backend repo contains the locked-in baselines. See `IntelligentNpcs.Eval/README.md` for usage.
