@@ -127,3 +127,17 @@
   font-size: 0.85em;
   color: #2a5d2a;
 }
+
+.inpc-gm-resolution .inpc-gm-resolution-continue {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.5em;
+  font-size: 0.8em;
+  color: #666;
+  cursor: pointer;
+  user-select: none;
+}
+.inpc-gm-resolution .inpc-gm-resolution-continue input[type="checkbox"] {
+  margin: 0;
+}

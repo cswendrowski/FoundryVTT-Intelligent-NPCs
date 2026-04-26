@@ -72,32 +72,73 @@ export async function renderChatMessage(message, html, data) {
                     <button class="inpc-gm-deny" data-action="deny"><i class="fas fa-times"></i> Deny</button>
                     <button class="inpc-gm-custom" data-action="custom"><i class="fas fa-pen"></i> Custom...</button>
                 </div>
+                <label class="inpc-gm-resolution-continue" data-tooltip="On: NPC reacts immediately to the outcome you set. Off: outcome is recorded silently and the NPC waits for the player's next message — useful when you want player input before the NPC narrates further.">
+                    <input type="checkbox" class="inpc-gm-continue-toggle" checked>
+                    Continue conversation
+                </label>
             </div>
         `);
 
-        const handleResolution = async (outcomeText) => {
+        const recordOutcome = async (outcomeText) => {
             const npc = flagData.npcId ? game.actors.get(flagData.npcId) : null;
             if ( !npc ) {
                 ui.notifications.warn("Intelligent NPCs: could not find actor to record GM resolution.");
-                return;
+                return null;
             }
             const history = npc.getFlag("intelligent-npcs", "messageHistory") ?? [];
             history.push({ role: "user", content: `Command: GM resolution for "${flagData.gmResolutionRequest}" — ${outcomeText}` });
             await npc.setFlag("intelligent-npcs", "messageHistory", history);
             await message.update({ "flags.intelligent-npcs.gmResolutionResolved": outcomeText });
-            ui.notifications.info(`GM resolution recorded.`);
+            return { npc, history, outcomeText };
         };
 
-        card.find('[data-action="approve"]').on("click", () => handleResolution(`Approved: ${flagData.gmResolutionRequest}`));
-        card.find('[data-action="deny"]').on("click", () => handleResolution(`Denied: ${flagData.gmResolutionRequest}`));
+        const continueNpcTurn = async ({ npc, history, outcomeText }) => {
+            // Synthesize a Command-speaker message so createAiResponse has the scene
+            // context + back-and-forth tracking shape it expects. The actual user-role
+            // history entry was already appended by recordOutcome; createAiResponse
+            // does not re-push it because the message we pass is the synthesized
+            // command, not a player chat.
+            const sceneId = message.speaker?.scene ?? canvas.scene?.id;
+            const npcToken = canvas.scene?.tokens?.find(t => t.actorId === npc.id);
+            const fakeMessage = {
+                speaker: { scene: sceneId, alias: "GM", actor: null, token: null },
+                content: outcomeText,
+                style: CONST.CHAT_MESSAGE_STYLES?.IC ?? 2,
+                whisper: [],
+                rolls: [],
+                flags: { "intelligent-npcs": { gmResolutionContinue: true } },
+                user: game.user,
+                author: game.user,
+            };
+            await createAiResponse(npc, npcToken, fakeMessage, history);
+        };
+
+        const handleResolution = async (outcomeText, { autoContinue }) => {
+            const recorded = await recordOutcome(outcomeText);
+            if ( !recorded ) return;
+            if ( autoContinue ) {
+                ui.notifications.info(`GM resolution applied — NPC reacting...`);
+                await continueNpcTurn(recorded);
+            } else {
+                ui.notifications.info(`GM resolution recorded. NPC will react on the next message.`);
+            }
+        };
+
+        const isContinueChecked = () => !!card.find('.inpc-gm-continue-toggle')[0]?.checked;
+
+        card.find('[data-action="approve"]').on("click", () =>
+            handleResolution(`Approved: ${flagData.gmResolutionRequest}`, { autoContinue: isContinueChecked() }));
+        card.find('[data-action="deny"]').on("click", () =>
+            handleResolution(`Denied: ${flagData.gmResolutionRequest}`, { autoContinue: isContinueChecked() }));
         card.find('[data-action="custom"]').on("click", async () => {
+            const continueAfter = isContinueChecked();
             const outcome = await Dialog.prompt({
                 title: "GM resolution outcome",
                 content: `<p>${escapedAsk}</p><textarea name="outcome" rows="3" style="width:100%" placeholder="Describe what actually happens..."></textarea>`,
                 callback: (html) => html.find('textarea[name="outcome"]').val()?.trim(),
                 rejectClose: false,
             });
-            if ( outcome ) await handleResolution(outcome);
+            if ( outcome ) await handleResolution(outcome, { autoContinue: continueAfter });
         });
 
         messageContent.append(card);
