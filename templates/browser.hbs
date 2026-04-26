@@ -30,7 +30,8 @@
                                 <p>{{npc.fields.summary}}</p>
                                 <div class="npc-actions">
                                     {{#if npc.imported}}
-                                        <button class="btn btn-default" data-action="open" data-journal-id="{{pack.journalId}}" data-page-id="{{npc.pageId}}"><i class="fa-solid fa-book-open"></i> Open Journal</button>
+                                        <button class="btn btn-default" data-action="open" data-journal-id="{{pack.journalId}}" data-page-id="{{npc.pageId}}" data-tooltip="Open the NPC's journal page to view or edit personality, background, and goals."><i class="fa-solid fa-book-open"></i> Open Journal</button>
+                                        <button class="btn btn-default" data-action="create-actor" data-journal-id="{{pack.journalId}}" data-page-id="{{npc.pageId}}" data-npc-name="{{npc.fields.name}}" data-tooltip="Create a world Actor wired to this NPC, ready to drop on a scene and chat with."><i class="fa-solid fa-user-plus"></i> Create Actor</button>
                                     {{else}}
                                         <button class="btn btn-default" data-action="download" data-npc-id="{{npc.id}}" {{#unless npc.downloadable}}disabled="disabled" data-tooltip="This is a Premium NPC. Subscribe at the Golden Envoy tier to get access"{{/unless}}><i class="fa-duotone fa-download"></i> Download</button>
                                     {{/if}}

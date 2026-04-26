@@ -117,6 +117,7 @@ export default class IntelligentNpcsBrowser extends Application {
         switch (action) {
             case "download": return this._onClickDownloadNpc(button);
             case "open": return this._onClickOpenNpc(button);
+            case "create-actor": return this._onClickCreateActor(button);
         }
     }
 
@@ -266,6 +267,68 @@ export default class IntelligentNpcsBrowser extends Application {
         const journal = game.journal.get(journalId);
         const page = journal.pages.get(pageId);
         journal.sheet.render(true, {pageId: page.id});
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Create a world Actor wired to an already-imported INPC journal page.
+     * If an actor with the same name already exists, just open it (don't
+     * duplicate). Otherwise create one with the page's image and the
+     * Intelligent NPC flags set so it's chat-ready.
+     */
+    async _onClickCreateActor(button) {
+        const journalId = button.dataset.journalId;
+        const pageId = button.dataset.pageId;
+        const npcName = button.dataset.npcName;
+
+        const journal = game.journal.get(journalId);
+        const page = journal?.pages.get(pageId);
+        if ( !page ) {
+            ui.notifications.error("Could not find the journal page to wire the actor to.");
+            return;
+        }
+
+        // If an actor with this name already exists, open it instead of duplicating.
+        const existing = game.actors.getName(npcName);
+        if ( existing ) {
+            ui.notifications.info(`${npcName} already exists — opening their sheet.`);
+            existing.sheet.render(true);
+            return;
+        }
+
+        button.setAttribute("disabled", true);
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+        try {
+            const pageConfig = page.flags["intelligent-npcs"] ?? {};
+            const img = pageConfig.img || page.src || "icons/svg/mystery-man.svg";
+
+            const actor = await Actor.create({
+                name: npcName,
+                type: "character",
+                img: img,
+                "prototypeToken.name": npcName,
+                "prototypeToken.texture.src": img,
+                "prototypeToken.actorLink": true,
+                "flags.intelligent-npcs": {
+                    enabled: true,
+                    model: "default",
+                    name: npcName,
+                    journalPage: pageId,
+                }
+            });
+
+            ui.notifications.info(`Created actor for ${npcName}. Drag onto a scene and target their token to chat.`);
+            actor.sheet.render(true);
+            button.innerHTML = '<i class="fas fa-check"></i> Actor created';
+        } catch (e) {
+            console.error(e);
+            ui.notifications.error(`Failed to create actor for ${npcName}: ${e.message}`);
+            button.innerHTML = originalHtml;
+            button.removeAttribute("disabled");
+        }
     }
 
     /* -------------------------------------------- */
