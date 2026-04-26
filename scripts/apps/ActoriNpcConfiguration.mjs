@@ -119,6 +119,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         html.find("select[name='journalPage']").change(this._onJournalPageChange.bind(this));
         html.find("textarea[name='memory']").change(this._onMemoryChange.bind(this));
         html.find("textarea[name='goals']").change(this._onGoalsChange.bind(this));
+        html.find("textarea[name='objectives']").change(this._onObjectivesChange.bind(this));
         html.find(".inpc-journal-page-link").click(this._onJournalPageLink.bind(this));
     }
 
@@ -170,6 +171,14 @@ export default class ActoriNpcConfiguration extends FormApplication {
     async _onGoalsChange(event) {
         const goals = event.target.value;
         await this.actor.setFlag("intelligent-npcs", "goals", goals);
+        this.render(true);
+    }
+
+    /* -------------------------------------------- */
+
+    async _onObjectivesChange(event) {
+        const objectives = event.target.value;
+        await this.actor.setFlag("intelligent-npcs", "objectives", objectives);
         this.render(true);
     }
 
@@ -253,6 +262,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         await this.actor.setFlag("intelligent-npcs", "messageHistory", []);
         await this.actor.setFlag("intelligent-npcs", "memory", "");
         await this.actor.setFlag("intelligent-npcs", "goals", "");
+        await this.actor.setFlag("intelligent-npcs", "objectives", "");
 
         const pageId = this.actor.getFlag("intelligent-npcs", "journalPage");
         const page = game.journal.find(journalEntry => journalEntry.pages.get(pageId)).pages.get(pageId);

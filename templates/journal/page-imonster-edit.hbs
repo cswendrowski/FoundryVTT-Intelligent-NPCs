@@ -1,0 +1,65 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <div class="form-group inpc-header">
+        <img src="{{config.img}}" data-edit="img" title="{{journal.name}}" height="124" width="124"/>
+        <h2><input type="text" name="name" value="{{journal.name}}"></h2>
+    </div>
+
+    <div class="form-group-stacked" style="margin: 1rem;">
+        <label>Summary</label>
+        <textarea class="form-control" rows="4" name="summary" placeholder="{{journal.name}} is a generic Monster usable in any setting">{{config.summary}}</textarea>
+        <p class="notes">A quick summary of this Monster for human reference. Intelligent NPCs / Monsters do not read this field.</p>
+    </div>
+
+    <div class="form-group playlist" style="margin: 1rem;" data-name="playlist">
+        <label>Linked Playlist</label>
+        {{#if hasPlaylistLink}}
+            {{{playlistContentLink}}}
+            <a class="playlist-remove" data-name="playlist" data-action="remove" style="flex: 0;margin-left: 0.25rem;"><i class="fa-solid fa-delete-left"></i></a>
+        {{else}}
+            <p class="playlist-none">Drag a playlist here to link.</p>
+        {{/if}}
+        <p class="notes">If a Playlist is linked, the iMonster will occasionally choose to play sound from it.</p>
+    </div>
+
+    <fieldset>
+        <legend>Public Info</legend>
+        <p class="notes">These fields will be read by other Intelligent NPCs / Monsters, so don't include any info that others shouldn't generally know. These fields should be written in third person.</p>
+
+        <div class="form-group-stacked">
+            <label>What Everyone Knows</label>
+            <textarea class="form-control" rows="4" name="whatEveryoneKnows" placeholder="{{journal.name}} is a generic monster who is well known for existing." >{{config.whatEveryoneKnows}}</textarea>
+            <p class="notes">A quick summary of what others generally know about this monster. Write in third person.</p>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Appearance</label>
+            <textarea class="form-control" rows="4" name="appearance" placeholder="{{journal.name}} wears standard street wear." >{{config.appearance}}</textarea>
+            <p class="notes">What this character looks like to others. Write in third person.</p>
+        </div>
+    </fieldset>
+
+
+    <fieldset>
+        <legend>Private Info</legend>
+        <p class="notes">The following fields should be written in first person.</p>
+
+
+        <div class="form-group-stacked">
+            <label>Personality</label>
+            <textarea class="form-control" rows="8" name="personality" placeholder="Personality">{{config.personality}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
+            <label>Combat Tactics</label>
+            <textarea class="form-control" rows="4" name="tactics" placeholder="How this monster fights in combat">{{config.tactics}}</textarea>
+        </div>
+
+
+        <div class="form-group-stacked">
+            <label>Example Sentence</label>
+            <p class="notes">You should wrap emoting text with &lt;i&gt; tags, such as &lt;i&gt;Waves&lt;/i&gt;</p>
+            <textarea class="form-control" rows="2" name="exampleSentence" placeholder="Why hello there">{{config.exampleSentence}}</textarea>
+        </div>
+
+    </fieldset>
+</form>

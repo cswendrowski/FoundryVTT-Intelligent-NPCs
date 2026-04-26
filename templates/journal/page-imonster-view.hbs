@@ -1,0 +1,42 @@
+<section>
+    <div class="inpc-info flexrow">
+        <img src="{{config.img}}" title="{{journal.name}}" height="248" width="248" />
+        <div class="flexcol">
+            <h1>{{journal.name}}</h1>
+
+            <h2>Summary</h2>
+            <p>{{config.summary}}</p>
+
+            {{#if hasPlaylistLink}}
+                <h2>Linked Playlist</h2>
+                {{{playlistContentLink}}}
+            {{/if}}
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <h1>Public Info</h1>
+
+    <h2>What Everyone Knows</h2>
+    <p>{{config.whatEveryoneKnows}}</p>
+
+    <h2>Appearance</h2>
+    <p>{{config.appearance}}</p>
+
+    {{#if user.isGM}}
+        <hr>
+
+        <h1>Private Info</h1>
+
+        <h2>Personality</h2>
+        <p>{{config.personality}}</p>
+
+        <h2>Combat Tactics</h2>
+        <p>{{config.tactics}}</p>
+
+        <h2>Example Sentence</h2>
+        <p>{{{config.exampleSentence}}}</p>
+    {{/if}}
+</section>

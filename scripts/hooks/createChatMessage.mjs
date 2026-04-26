@@ -93,6 +93,7 @@ export async function getConfig(npc) {
     if ( actorConfig.messageHistory ) config.messageHistory = actorConfig.messageHistory;
     if ( actorConfig.memory ) config.memory = actorConfig.memory;
     if ( actorConfig.goals ) config.goals = actorConfig.goals;
+    if ( actorConfig.objectives ) config.objectives = actorConfig.objectives;
 
     if ( page.name !== npc.name ) {
         config.summary = config.summary.replace(new RegExp(page.name, "g"), npc.name);
@@ -497,6 +498,7 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
     let gmResolutionRequest = null;
     let memoryAppend = null;
     let goalsUpdate = null;
+    let objectivesUpdate = null;
     try {
         console.dir(messageContent);
         const parsedMessageContent = parseAsJson(messageContent);
@@ -509,6 +511,7 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
         gmResolutionRequest = parsedMessageContent.gmResolutionRequest ?? null;
         memoryAppend = parsedMessageContent.memoryAppend ?? null;
         goalsUpdate = parsedMessageContent.goals ?? null;
+        objectivesUpdate = parsedMessageContent.objectives ?? null;
 
         if (parsedMessageContent.target) {
             target = scene.tokens.find(t => t.name === parsedMessageContent.target);
@@ -534,6 +537,9 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
     if ( goalsUpdate ) {
         await targetedNpc.setFlag("intelligent-npcs", "goals", goalsUpdate);
     }
+    if ( objectivesUpdate ) {
+        await targetedNpc.setFlag("intelligent-npcs", "objectives", objectivesUpdate);
+    }
 
     // Add this message to the message history as an assistant message
     messageHistory.push({
@@ -548,6 +554,7 @@ async function respondAsAI(targetedNpc, targetedToken, message, messageHistory, 
             gmResolutionRequest ? `[GM_RESOLUTION]: ${gmResolutionRequest}` : null,
             memoryAppend ? `[MEMORY_APPEND]: ${memoryAppend}` : null,
             goalsUpdate ? `[GOALS]: ${goalsUpdate}` : null,
+            objectivesUpdate ? `[OBJECTIVES]: ${objectivesUpdate}` : null,
         ].filter(line => line !== null).join("\n")
     });
 

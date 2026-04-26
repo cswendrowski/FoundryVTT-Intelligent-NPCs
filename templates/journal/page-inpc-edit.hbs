@@ -59,6 +59,12 @@
         </div>
 
         <div class="form-group-stacked">
+            <label>Active Objectives</label>
+            <p class="notes">Optional starting checklist. Markdown <code>- [ ]</code> / <code>- [x]</code> format. The NPC drives toward open items, marks them complete as they finish, and may add new items at runtime.</p>
+            <textarea class="form-control" rows="4" name="objectives" placeholder="- [ ] First objective&#10;- [ ] Second objective">{{config.objectives}}</textarea>
+        </div>
+
+        <div class="form-group-stacked">
             <label>Connections</label>
             <textarea class="form-control" rows="4" name="connections" placeholder="Connections">{{config.connections}}</textarea>
         </div>
