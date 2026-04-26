@@ -24,9 +24,15 @@
         <div class="form-group-stacked">
             <label>Journal Page <i class="inpc-journal-page-link fas fa-file-lines" data-uuid="{{journalPageUUID}}"></i></label>
             {{#if canSwap}}
-                <p class="notes">Pick an available Intelligent NPC journal page to load up a character to use</p>
+                {{#unless journalPageUUID}}
+                    <p class="notes">No page selected yet. Pick one from the dropdown below, or scaffold one in a click:</p>
+                    <button type="button" class="inpc-create-page"><i class="fas fa-wand-magic-sparkles"></i> Create new page from this actor</button>
+                    <p class="notes" style="margin-top:0.4em">Other options: <b>Browse Free NPCs</b> on the Journal sidebar to import a pre-made character, or manually create a new Journal entry → page → switch the page sheet to <i>Intelligent NPC Configuration</i>.</p>
+                {{else}}
+                    <p class="notes">Pick an available Intelligent NPC journal page to swap personality. The current selection shows below.</p>
+                {{/unless}}
             {{else}}
-                <p class="notes">This NPC has been customized. Please reset to swap configured personality</p>
+                <p class="notes">This NPC has runtime customizations (memory, goals, objectives, or message history). <b>Reset</b> wipes all of those and restores the journal page's starting values — required before you can swap to a different page.</p>
                 <button class="reset-inpc"><i class="fas fa-undo"></i> Reset</button>
             {{/if}}
             <select name="journalPage" {{#unless canSwap}}disabled="disabled"{{/unless}}>
@@ -66,24 +72,25 @@
 
         <div class="form-group-stacked">
             <label>Memory</label>
-            <p class="notes">Warning: It's generally best to let the NPC manage its own memory</p>
+            <p class="notes">The NPC's running long-term memory. <b>Overrides the journal page</b> — leave empty to inherit the page's starting memory. Generally best to let the NPC manage its own memory; the secondary CoreMemory loop will compact this automatically over long conversations.</p>
             <textarea class="form-control" rows="5" name="memory" placeholder="Memory">{{config.memory}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Goals</label>
-            <p class="notes">The NPC's current priorities. The NPC may rewrite this when its goals shift; you can also edit it directly.</p>
+            <p class="notes">The NPC's current priorities. <b>Overrides the journal page</b> — leave empty to inherit. The NPC may rewrite this when its goals shift; you can also edit it directly.</p>
             <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Objectives</label>
-            <p class="notes">Active to-do list — markdown checklist, e.g.<br><code>- [ ] Find the keg thief</code> or <code>- [x] Pour Cody his ale</code>.<br>The NPC drives toward open items, marks them complete as they finish, and may add new items when taking on a task. You can also edit directly.</p>
+            <p class="notes">Active to-do list — markdown checklist, e.g. <code>- [ ] Find the keg thief</code> or <code>- [x] Pour Cody his ale</code>. <b>Overrides the journal page</b> — leave empty to inherit. The NPC drives toward open items, marks them complete as they finish, and may add new items when taking on a task. Works best on the Quality tier.</p>
             <textarea class="form-control" rows="4" name="objectives" placeholder="- [ ] First objective&#10;- [ ] Second objective">{{config.objectives}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Message History</label>
+            <p class="notes">The raw transcript the NPC remembers from its conversations. You usually don't need to read it — click <b>Clear History</b> to start the NPC fresh.</p>
             <button class="clear-history"><i class="fas fa-trash"></i> Clear History</button>
             <textarea class="form-control" rows="10" readonly placeholder="Message History">{{messageHistory}}</textarea>
         </div>

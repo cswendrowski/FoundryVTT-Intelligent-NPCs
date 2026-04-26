@@ -47,7 +47,7 @@ export async function init() {
 
     game.settings.register("intelligent-npcs", "experiment", {
         name: "Intelligent NPCs Experiment",
-        hint: "From time to time, we'll have new experimental model tweaks that you can try out. Keep an eye on the Patreon for more information.",
+        hint: "Leave blank unless an active Patreon experiment tells you to set a specific value. Most users should leave this empty.",
         scope: "world",
         default: "",
         config: true,
@@ -66,7 +66,7 @@ export async function init() {
 
     game.settings.register("intelligent-npcs", "backAndForthDelay", {
         name: "NPC Back-and-Forth Delay",
-        hint: "The delay between NPC back-and-forth messages, in words per second. Most people read around 3 words a second.",
+        hint: "How fast NPC-to-NPC banter scrolls, measured in words read per second. Higher = faster. Most readers handle around 3-6 words/sec.",
         scope: "world",
         config: true,
         type: Number,
@@ -84,7 +84,7 @@ export async function init() {
 
     game.settings.register("intelligent-npcs", "sameSceneContext", {
         name: "Enable Same-Scene Context",
-        hint: "If enabled, NPCs will be able to use Chatlog context from the same Scene to inform their chat messages.",
+        hint: "If enabled, NPCs overhear recent IC chat in the same Scene. Example: Brenna and Tarn are both in the tavern and Tarn just cursed out a thug — Brenna will have heard, and her next response can react to it. Disable for tighter privacy between simultaneous scenes.",
         scope: "world",
         config: true,
         type: Boolean,

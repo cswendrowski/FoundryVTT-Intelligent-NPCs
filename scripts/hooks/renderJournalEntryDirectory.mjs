@@ -5,7 +5,7 @@ export async function renderJournalEntryDirectory(app, html, data) {
     const $html = html instanceof HTMLElement ? $(html) : html;
 
     // Add a "Browse Intelligent NPCs" button to header-actions
-    const intelligentNpcsButton = $(`<button id="intelligent-npcs-btn" data-action="intelligent-npcs"><i class="fas fa-list-timeline"></i> Intelligent NPCs</button>`);
+    const intelligentNpcsButton = $(`<button id="intelligent-npcs-btn" data-action="intelligent-npcs" data-tooltip="Browse and import free pre-made Intelligent NPCs from the catalog."><i class="fas fa-list-timeline"></i> Browse Free NPCs</button>`);
     $html.find('.header-actions').append(intelligentNpcsButton);
 
     intelligentNpcsButton.on('click', ev => {

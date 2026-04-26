@@ -68,9 +68,9 @@ export async function renderChatMessage(message, html, data) {
                 </div>
                 <div class="inpc-gm-resolution-ask">${escapedAsk}</div>
                 <div class="inpc-gm-resolution-buttons">
-                    <button class="inpc-gm-approve" data-action="approve"><i class="fas fa-check"></i> Approve</button>
-                    <button class="inpc-gm-deny" data-action="deny"><i class="fas fa-times"></i> Deny</button>
-                    <button class="inpc-gm-custom" data-action="custom"><i class="fas fa-pen"></i> Custom...</button>
+                    <button class="inpc-gm-approve" data-action="approve" data-tooltip="The NPC's action succeeds. The outcome is recorded as a Command in the NPC's memory; depending on the Continue toggle, the NPC will react in their next turn."><i class="fas fa-check"></i> Approve</button>
+                    <button class="inpc-gm-deny" data-action="deny" data-tooltip="The NPC's action fails. The outcome is recorded as a Command in the NPC's memory; depending on the Continue toggle, the NPC will react in their next turn."><i class="fas fa-times"></i> Deny</button>
+                    <button class="inpc-gm-custom" data-action="custom" data-tooltip="Type a custom outcome describing exactly what happens. The text you write becomes the Command the NPC reacts to."><i class="fas fa-pen"></i> Custom...</button>
                 </div>
                 <label class="inpc-gm-resolution-continue" data-tooltip="On: NPC reacts immediately to the outcome you set. Off: outcome is recorded silently and the NPC waits for the player's next message — useful when you want player input before the NPC narrates further.">
                     <input type="checkbox" class="inpc-gm-continue-toggle" checked>

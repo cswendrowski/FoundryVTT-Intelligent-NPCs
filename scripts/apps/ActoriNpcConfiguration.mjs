@@ -121,6 +121,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         html.find("textarea[name='goals']").change(this._onGoalsChange.bind(this));
         html.find("textarea[name='objectives']").change(this._onObjectivesChange.bind(this));
         html.find(".inpc-journal-page-link").click(this._onJournalPageLink.bind(this));
+        html.find(".inpc-create-page").click(this._onCreatePage.bind(this));
     }
 
     /* -------------------------------------------- */
@@ -180,6 +181,64 @@ export default class ActoriNpcConfiguration extends FormApplication {
         const objectives = event.target.value;
         await this.actor.setFlag("intelligent-npcs", "objectives", objectives);
         this.render(true);
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Scaffold a new Intelligent NPC journal entry + page from the current
+     * actor, then wire this actor to it. Removes the biggest onboarding
+     * wall: a fresh user with no INPC pages no longer has to leave the
+     * dialog and assemble a journal page by hand.
+     */
+    async _onCreatePage(event) {
+        event.preventDefault();
+        const actor = this.actor;
+        const actorName = actor.name;
+
+        // Find or create the catch-all journal entry that holds module-scaffolded pages.
+        const entryName = "Intelligent NPCs";
+        let entry = game.journal.find(j => j.name === entryName);
+        if ( !entry ) {
+            entry = await JournalEntry.create({ name: entryName });
+        }
+
+        // Create the page. The NpcPageSheet auto-fills sensible defaults
+        // (the "Bob the farmer" placeholder) on first render when the
+        // intelligent-npcs flag bag is empty — we just need to seed enough
+        // to make it feel like THIS actor.
+        const page = await JournalEntryPage.create({
+            name: actorName,
+            type: "text",
+            "flags.core.sheetClass": "intelligent-npcs.NpcPageSheet",
+            "flags.intelligent-npcs": {
+                enabled: true,
+                summary: `${actorName} is a generic person who is well known for existing.`,
+                background: "",
+                personality: "",
+                goals: "",
+                connections: "",
+                appearance: "",
+                exampleSentence: `\"Hello.\"`,
+                memory: "",
+                playlist: null,
+                img: actor.img,
+            }
+        }, { parent: entry });
+
+        // Wire this actor to the new page (mirrors _onJournalPageChange).
+        await actor.setFlag("intelligent-npcs", "enabled", true);
+        await actor.setFlag("intelligent-npcs", "model", "default");
+        await actor.setFlag("intelligent-npcs", "name", actorName);
+        await actor.setFlag("intelligent-npcs", "journalPage", page.id);
+
+        ui.notifications.info(`Created Intelligent NPC page for ${actorName}. Open the journal page to fill in personality, goals, and memory.`);
+
+        // Re-render the dialog so the page appears in the dropdown and is selected.
+        this.render(true);
+
+        // Open the new page so the user can immediately edit personality/etc.
+        page.sheet.render(true);
     }
 
     /* -------------------------------------------- */
