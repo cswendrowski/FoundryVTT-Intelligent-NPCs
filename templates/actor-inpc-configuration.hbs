@@ -10,6 +10,18 @@
             <input type="checkbox" name="enabled" {{checked config.enabled}}>
         </div>
         <div class="form-group-stacked">
+            <label><i class="fa-regular fa-comments"></i> Combat Banter</label>
+            <p class="notes">Whether this NPC produces in-character barks on combat turn-start and defeat. Overrides the world setting for this one NPC — useful for stealth-focused characters or quiet bosses who shouldn't talk during fights.</p>
+            <select name="combatBanter">
+                {{#select config.combatBanter}}
+                <option value="">Use world default ({{worldCombatBanterLabel}})</option>
+                <option value="always">Always bark</option>
+                <option value="never">Never bark</option>
+                {{/select}}
+            </select>
+        </div>
+
+        <div class="form-group-stacked">
             <label><i class="fa-regular fa-gear"></i> AI Model</label>
             <select name="model">
                 {{#select config.model}}

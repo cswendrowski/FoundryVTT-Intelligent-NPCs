@@ -321,6 +321,9 @@ export default class IntelligentNpcsBrowser extends Application {
             });
 
             ui.notifications.info(`Created actor for ${npcName}. Drag onto a scene and target their token to chat.`);
+            // Show the first-activation tip if this is the user's first Intelligent NPC.
+            const ActoriNpcConfiguration = (await import('./ActoriNpcConfiguration.mjs')).default;
+            await ActoriNpcConfiguration._maybeShowFirstActivationTip(npcName);
             actor.sheet.render(true);
             button.innerHTML = '<i class="fas fa-check"></i> Actor created';
         } catch (e) {

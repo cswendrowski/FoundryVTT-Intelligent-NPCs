@@ -8,6 +8,41 @@ export default class ActoriNpcConfiguration extends FormApplication {
 
     /* -------------------------------------------- */
 
+    /**
+     * If this is the first time any NPC has been activated in this world,
+     * post a one-time GM-only chat card with a quickstart tip ("how do I
+     * make this NPC talk?"). Called from both _onJournalPageChange and
+     * _onCreatePage so it fires on either onboarding path.
+     */
+    static async _maybeShowFirstActivationTip(actorName) {
+        if ( !game.user.isGM ) return;
+        const shown = game.settings.get("intelligent-npcs", "firstActivationShown");
+        if ( shown ) return;
+        await game.settings.set("intelligent-npcs", "firstActivationShown", true);
+
+        const content = `
+            <div class="inpc-first-activation">
+                <h3 style="margin-top: 0;"><i class="fas fa-thought-bubble"></i> Your first Intelligent NPC is live!</h3>
+                <p><b>${actorName}</b> is ready to chat. Here's how:</p>
+                <ol style="padding-left: 1.4em; margin: 0.4em 0;">
+                    <li>Drag the actor onto a scene to place a token (or use an existing token if it's already on a scene).</li>
+                    <li><b>Target</b> the token (right-click → Target, or hold T).</li>
+                    <li>Type a message in chat <b>in-character</b> (the speech-bubble dropdown set to "Public as User" or "Public as Character"). The NPC will reply.</li>
+                </ol>
+                <p class="notes">Want the GM to direct the NPC instead? Whisper to GMs — your message becomes a <b>Command</b> the NPC follows. NPCs with strong personality may resist out-of-character orders, which is intentional.</p>
+                <p class="notes">More setup: open the actor's <b>Intelligent NPC</b> dialog (⋮ menu) to edit memory, goals, objectives, or switch to the Quality model tier for setpiece characters.</p>
+            </div>
+        `;
+        await ChatMessage.create({
+            user: game.user.id,
+            whisper: game.users.filter(u => u.isGM).map(u => u.id),
+            content: content,
+            flags: { "intelligent-npcs": { firstActivation: true } },
+        });
+    }
+
+    /* -------------------------------------------- */
+
     /** @override */
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
@@ -72,7 +107,8 @@ export default class ActoriNpcConfiguration extends FormApplication {
             journalPages: inpcJournalPages,
             canSwap: canSwap,
             journalPageUUID: pageUUID,
-            messageHistory: JSON.stringify(this.actor.getFlag("intelligent-npcs", "messageHistory"), null, 2)
+            messageHistory: JSON.stringify(this.actor.getFlag("intelligent-npcs", "messageHistory"), null, 2),
+            worldCombatBanterLabel: game.settings.get("intelligent-npcs", "combatBanterEnabled") ? "always bark" : "never bark",
         });
     }
 
@@ -156,6 +192,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         await this.actor.setFlag("intelligent-npcs", "name", page.name);
         await this.actor.setFlag("intelligent-npcs", "journalPage", pageId);
         await this.actor.setFlag("intelligent-npcs", "memory", selectedPageConfig["memory"]);
+        await ActoriNpcConfiguration._maybeShowFirstActivationTip(page.name);
         this.render(true);
     }
 
@@ -233,6 +270,7 @@ export default class ActoriNpcConfiguration extends FormApplication {
         await actor.setFlag("intelligent-npcs", "journalPage", page.id);
 
         ui.notifications.info(`Created Intelligent NPC page for ${actorName}. Open the journal page to fill in personality, goals, and memory.`);
+        await ActoriNpcConfiguration._maybeShowFirstActivationTip(actorName);
 
         // Re-render the dialog so the page appears in the dropdown and is selected.
         this.render(true);

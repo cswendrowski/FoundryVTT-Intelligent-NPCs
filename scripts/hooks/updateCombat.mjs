@@ -1,7 +1,7 @@
 import {callApi, getConfig} from "./createChatMessage.mjs";
 
 export async function updateCombat(combat, updateData, options) {
-    if ( !game.settings.get("intelligent-npcs", "combatBanterEnabled") ) return;
+    // World default vs per-NPC override is checked further down once we know the NPC.
     if ( !updateData.round && !updateData.turn ) return;
     let currentCombatant = combat.combatant;
 
@@ -13,6 +13,8 @@ export async function updateCombat(combat, updateData, options) {
     let npc = currentCombatant.actor;
     if ( !npc?.flags["intelligent-npcs"]?.enabled ) return;
 
+    if ( !shouldBark(npc) ) return;
+
     // If the combatant is defeated, return
     if ( currentCombatant.defeated ) return;
 
@@ -22,10 +24,24 @@ export async function updateCombat(combat, updateData, options) {
     await createAiResponse(npc, combat, messageHistory);
 }
 
+/**
+ * Resolve whether this NPC should produce a combat bark on this event,
+ * given the per-NPC override and the world default. Per-NPC values:
+ *   undefined / "" / "default" → inherit world setting
+ *   "always" / true            → bark even if world setting is off
+ *   "never"  / false           → silent even if world setting is on
+ */
+function shouldBark(npc) {
+    const override = npc.flags["intelligent-npcs"]?.combatBanter;
+    if ( override === "always" || override === true ) return true;
+    if ( override === "never" || override === false ) return false;
+    return !!game.settings.get("intelligent-npcs", "combatBanterEnabled");
+}
+
 /* -------------------------------------------- */
 
 export async function updateCombatant(combatant, updateData, options, userId) {
-    if ( !game.settings.get("intelligent-npcs", "combatBanterEnabled") ) return;
+    // World default vs per-NPC override is checked further down once we know the NPC.
     if ( !updateData.defeated ) return;
 
     // If the user is not the first GM, return
@@ -35,6 +51,8 @@ export async function updateCombatant(combatant, updateData, options, userId) {
     // If the combatant is not an AI, return
     let npc = combatant.actor;
     if ( !npc?.flags["intelligent-npcs"]?.enabled ) return;
+
+    if ( !shouldBark(npc) ) return;
 
     // get the message history from the npc flags
     const messageHistory = npc.getFlag("intelligent-npcs", "messageHistory") || [];

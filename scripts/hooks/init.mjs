@@ -23,7 +23,7 @@ export async function init() {
 
     game.settings.register("intelligent-npcs", "apiKey", {
         name: "Intelligent NPCs API Key",
-        hint: "You can get an API key by being a Patreon supporter at https://www.patreon.com/ironmoose.",
+        hint: "Get an API key by becoming a Patreon supporter at https://www.patreon.com/ironmoose. After setting and reloading, click \"Intelligent NPCs Account Status\" on the Settings sidebar to verify your key and see remaining messages.",
         scope: "world",
         default: "",
         config: true,
@@ -89,6 +89,29 @@ export async function init() {
         config: true,
         type: Boolean,
         default: true
+    });
+
+    game.settings.register("intelligent-npcs", "lastSeenVersion", {
+        scope: "client",
+        config: false,
+        type: String,
+        default: "",
+    });
+
+    game.settings.register("intelligent-npcs", "muteWhatsNew", {
+        name: "Mute \"What's New\" cards",
+        hint: "When enabled, suppresses the GM-only chat card that appears once after a module update listing recent changes.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+    });
+
+    game.settings.register("intelligent-npcs", "firstActivationShown", {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false,
     });
 
     game.settings.register("intelligent-npcs", "moodPosition", {
