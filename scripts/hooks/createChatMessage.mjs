@@ -335,13 +335,18 @@ export async function createChatMessage(message, options, userId) {
     if ( message.content.includes("Thinking...") ) return;
     if ( message.content.includes("Processing failed.") ) return;
 
-    // If the message is OOC or a Roll, return
-    const messageStyle = message.style ?? message.type;
-    const STYLES = CONST.CHAT_MESSAGE_STYLES ?? CONST.CHAT_MESSAGE_TYPES ?? {};
-    if ( messageStyle === STYLES.OOC || messageStyle === STYLES.ROLL || message.rolls?.length > 0 ) return;
-
     // Get the user who created the message (v13+ renamed `user` → `author`)
     const user = message.author ?? message.user;
+
+    // If the message is OOC or a Roll, return — UNLESS it is a GM whisper.
+    // In v14 the WHISPER chat style is gone (whispers are detected only via
+    // `message.whisper?.length > 0`), and the GM "Private to Gamemasters"
+    // selector often produces an OOC-style message. Letting GM whispers
+    // through here is what enables the GM-direction Command path below.
+    const messageStyle = message.style ?? message.type;
+    const STYLES = CONST.CHAT_MESSAGE_STYLES ?? CONST.CHAT_MESSAGE_TYPES ?? {};
+    const isGmWhisper = message.whisper?.length > 0 && user?.isGM;
+    if ( !isGmWhisper && (messageStyle === STYLES.OOC || messageStyle === STYLES.ROLL || message.rolls?.length > 0) ) return;
 
     // If the message flags have a target, prefer that
     let targetedToken = null;
@@ -350,6 +355,14 @@ export async function createChatMessage(message, options, userId) {
             targetedToken = scene.tokens.get(message.flags["intelligent-npcs"].target);
         }
         if ( message.flags["intelligent-npcs"].endConversation ) {
+            return;
+        }
+        // If the speaker (an iNPC) just asked the GM for resolution, the
+        // conversation is paused on the GM's call. Don't let the targeted
+        // iNPC barrel ahead — it would either pre-empt the GM's ruling or
+        // narrate around it. The GM's Approve/Deny/Custom click writes a
+        // follow-up message that resumes the chain.
+        if ( message.flags["intelligent-npcs"].gmResolutionRequest ) {
             return;
         }
     }

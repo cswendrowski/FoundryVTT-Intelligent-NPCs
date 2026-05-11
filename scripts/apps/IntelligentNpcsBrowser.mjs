@@ -255,8 +255,9 @@ export default class IntelligentNpcsBrowser extends Application {
         // Open the page
         journal.sheet.render(true, {pageId: page.id});
 
-        // Update the button
-        button.innerHTML = '<i class="fas fa-check"></i> Downloaded';
+        // Re-render so the browser picks up the new imported state and swaps
+        // the Download button for the Open Journal + Create Actor pair.
+        this.render();
     }
 
     /* -------------------------------------------- */

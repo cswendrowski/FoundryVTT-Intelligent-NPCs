@@ -389,8 +389,18 @@ export default class ActoriNpcConfiguration extends FormApplication {
     /* -------------------------------------------- */
 
     async _onJournalPageLink(event) {
-        const uuid = event.currentTarget.dataset.uuid;
+        event.preventDefault();
+        const uuid = event.currentTarget?.dataset?.uuid;
+        if ( !uuid ) return;
         const page = await fromUuid(uuid);
-        page?._onClickDocumentLink(event);
+        if ( !page ) return;
+        // v14's Document#_onClickDocumentLink reads event.currentTarget.dataset
+        // expecting a content-link <a> shape that our <i> icon doesn't satisfy
+        // (and currentTarget is sometimes null by the time it runs). Open the
+        // parent journal directly to the page instead — same end result, fewer
+        // moving parts.
+        const journal = page.parent;
+        if ( journal?.sheet ) journal.sheet.render(true, { pageId: page.id });
+        else page.sheet?.render(true);
     }
 }
