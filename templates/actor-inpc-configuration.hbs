@@ -83,19 +83,19 @@
 
         <div class="form-group-stacked">
             <label>Memory</label>
-            <p class="notes">The NPC's running long-term memory. <b>Overrides the journal page</b> — leave empty to inherit the page's starting memory. Generally best to let the NPC manage its own memory; the secondary CoreMemory loop will compact this automatically over long conversations.</p>
+            <p class="notes">The NPC's running long-term memory, seeded from the journal page's Initial Memory and then maintained by the NPC. Generally best to let the NPC manage its own memory; the secondary CoreMemory loop will compact this automatically over long conversations.</p>
             <textarea class="form-control" rows="5" name="memory" placeholder="Memory">{{config.memory}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Goals</label>
-            <p class="notes">The NPC's current priorities. <b>Overrides the journal page</b> — leave empty to inherit. The NPC may rewrite this when its goals shift; you can also edit it directly.</p>
+            <p class="notes">The NPC's current priorities, seeded from the journal page's Goals. The NPC may rewrite this when its priorities shift; you can also edit it directly.</p>
             <textarea class="form-control" rows="3" name="goals" placeholder="Goals">{{config.goals}}</textarea>
         </div>
 
         <div class="form-group-stacked">
             <label>Objectives</label>
-            <p class="notes">The NPC's live to-do list — markdown checklist, e.g. <code>- [ ] Find the keg thief</code> or <code>- [x] Pour Cody his ale</code>. <b>Overrides the journal page</b> — leave empty to inherit the page's initial objectives. The NPC drives toward open items, marks them complete as they finish, and may add new items when taking on a task. Works best on the Quality tier.</p>
+            <p class="notes">The NPC's live to-do list — markdown checklist, e.g. <code>- [ ] Find the keg thief</code> or <code>- [x] Pour Cody his ale</code>. Seeded from the journal page's Initial Objectives. The NPC drives toward open items, marks them complete as they finish, and may add new items when taking on a task. Works best on the Quality tier.</p>
             <textarea class="form-control" rows="4" name="objectives" placeholder="- [ ] First objective&#10;- [ ] Second objective">{{config.objectives}}</textarea>
         </div>
 
