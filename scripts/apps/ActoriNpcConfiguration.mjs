@@ -70,6 +70,9 @@ export default class ActoriNpcConfiguration extends FormApplication {
             config["appearance"] = "Farmer attire";
         }
 
+        if ( config.model === "v1" || config.model === "hybrid" ) config.model = "fast";
+        else if ( config.model === "v2" ) config.model = "quality";
+
         const inpcJournals = game.journal.filter(journalEntry => journalEntry.pages
             .find(p => p.getFlag("core", "sheetClass") === "intelligent-npcs.NpcPageSheet"));
         const inpcJournalPages = inpcJournals
