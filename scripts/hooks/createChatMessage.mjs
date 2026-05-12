@@ -426,7 +426,8 @@ function parseAsJson(messageContent) {
         reasoning: parsedMessageContent.reasoning ?? "",
         gmResolutionRequest: parsedMessageContent.gmResolutionRequest ?? null,
         memoryAppend: parsedMessageContent.memoryAppend ?? null,
-        goals: parsedMessageContent.goals ?? null
+        goals: parsedMessageContent.goals ?? null,
+        objectives: parsedMessageContent.objectives ?? null
     }
 
     // Parse trailing , from mood and response
