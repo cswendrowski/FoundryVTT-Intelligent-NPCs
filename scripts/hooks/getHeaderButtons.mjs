@@ -3,7 +3,7 @@ import ActoriNpcConfiguration from "../apps/ActoriNpcConfiguration.mjs";
 // Foundry v10–v12 ActorSheet (V1 Application) header buttons
 export function getActorHeaderButtons(sheet, buttons) {
 
-    if ( !sheet.object.canUserModify(game.user) ) return;
+    if ( !sheet.object.canUserModify(game.user, "update") ) return;
 
     // Push a new button to the front of the list
     buttons.unshift({
